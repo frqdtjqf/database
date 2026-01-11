@@ -3,6 +3,8 @@ Dataclasses for Lego models."""
 
 from dataclasses import dataclass
 
+UNDEFINED = object()
+
 # Lego Teil
 @dataclass
 class LegoPart:
@@ -30,11 +32,13 @@ class TemplateMinifigure:
     name: str
     year: int
     sets: frozenset[str]
-    possible_weapons: frozenset[WeaponSlot] | None = None
+
+    parts: frozenset[LegoPart] | object = UNDEFINED
+    possible_weapons: frozenset[WeaponSlot] | object = UNDEFINED
     description: str = ""
 
 # eine reale Lego Minifigur im Bestand
-@dataclass
+@dataclass(frozen=True)
 class ActualMinifigure:
     id: str
     template: TemplateMinifigure
