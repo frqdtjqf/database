@@ -5,13 +5,8 @@ DB_NAME = "database.db"
 
 class DataBaseWrapper:
 
-    def __init__(self, db_name):
+    def __init__(self, db_name = DB_NAME):
         self.db_name = db_name
-
-    def _connect(self) -> sqlite3.Connection:
-        conn = sqlite3.connect(self.db_name)
-        conn.row_factory = sqlite3.Row
-        return conn
 
     def create_table(self, table: Table):
 
@@ -26,7 +21,7 @@ class DataBaseWrapper:
             if attr.primary_key:
                 if primary_key_found:
                     raise ValueError("Multiple primary keys defined")
-                columns.append(f"{attr.name} {attr.type} PRIMARY KEY")  # PK goes first
+                columns.append(f"{attr.name} {attr.type} PRIMARY KEY")
                 primary_key_found = True
             else:
                 normal_attributes.append(f"{attr.name} {attr.type}")
@@ -89,3 +84,8 @@ class DataBaseWrapper:
         if not name.isidentifier():
             raise ValueError(f"Invalid identifier: {name}")
         return name
+    
+    def _connect(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.db_name)
+        conn.row_factory = sqlite3.Row
+        return conn
