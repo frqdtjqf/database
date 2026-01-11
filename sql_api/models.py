@@ -49,3 +49,9 @@ class Element:
 @dataclass
 class Record:
     elements: list[Element]
+
+    def get_primary_key_element(self) -> Element:
+        for e in self.elements:
+            if e.attribute.primary_key:
+                return e
+        raise ValueError("No primary key element found in record")
