@@ -34,7 +34,6 @@ class DataBaseWrapper:
             db.execute(sql)
             db.commit()
 
-
     def delete_table(self, table: Table):
         sql = f"DROP TABLE IF EXISTS {table.name}"
         with self._connect() as db:
@@ -79,7 +78,7 @@ class DataBaseWrapper:
     
     def get_query_records(self, table: Table, query_attribute: Attribute, query_value: any) -> list[Record]:
         """Return all Records, which have Element(attribute=query_attribute, value=query_value)"""
-        if query_attribute not in table.attributes:
+        if query_attribute.name not in [attr.name for attr in table.attributes]:
             raise ValueError(f"Table '{table.name}' has no attribute '{query_attribute.name}'")
         
         sql = f"SELECT * from {table.name} WHERE {query_attribute.name} = :val"

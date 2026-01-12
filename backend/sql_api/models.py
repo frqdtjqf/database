@@ -14,6 +14,12 @@ class Table:
     name: str
     attributes: list[Attribute]
 
+    def get_attribute_by_name(self, attribute_name: str) -> Attribute:
+        attr = next(attr for attr in self.attributes if attr.name == attribute_name)
+        if attr is None:
+            raise ValueError(f"Table '{self.name}' has no attribute '{attribute_name}'")
+        return attr
+
 # ein Element eines Datensatzes, ordnet einem Wert ein Attribut zu
 # validiert den Wert entsprechend dem Attributtyp bei der Initialisierung
 @dataclass
@@ -56,3 +62,7 @@ class Record:
             if e.attribute.primary_key:
                 return e
         raise ValueError("No primary key element found in record")
+    
+    def get_element_by_attribute_name(self, attribute_name: str) -> Element:
+        element = next((e for e in self.elements if e.attribute.name == attribute_name), None)
+        return element
