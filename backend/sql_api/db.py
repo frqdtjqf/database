@@ -5,8 +5,8 @@ DB_NAME = "database.db"
 
 class DataBaseWrapper:
 
-    def __init__(self, db_name = DB_NAME):
-        self.db_name = db_name
+    def __init__(self, db_name: str = DB_NAME):
+        self.db_name = f"./data/{db_name}"
 
     def create_table(self, table: Table):
         if not table.attributes:

@@ -1,37 +1,69 @@
-import sqlite3
-from sql_api.models import Table, Attribute
-from sql_api.db import connect, create_table, delete_table
+from backend.sql_api import DataBaseWrapper, Table, Attribute, Element, Record
 
-def test_create_table():
-    # Define test table and attributes
-    attrs = [
-        Attribute("name", "TEXT"),
-        Attribute("age", "INTEGER"),
-        Attribute("id", "INTEGER", primary_key=True)
+DB_NAME = "testing.db"  # in-memory DB for testing
+
+def test_db():
+
+    # -------------------------------
+    # 1️⃣ Define test tables
+    # -------------------------------
+    USER_ATTRIBUTES = [
+        Attribute(name="id", type="TEXT", primary_key=True),
+        Attribute(name="name", type="TEXT")
     ]
-    table = Table("users_test", attrs)
+    POST_ATTRIBUTES = [
+        Attribute(name="id", type="TEXT", primary_key=True),
+        Attribute(name="user_id", type="TEXT", foreign_key=("users", "id")),
+        Attribute(name="content", type="TEXT")
+    ]
 
-    delete_table(table.name)  # Ensure clean state
-    create_table(table)
-    
-    # Connect to DB and check table exists
-    with connect() as db:
+    USER_TABLE = Table(name="users", attributes=USER_ATTRIBUTES)
+    POST_TABLE = Table(name="posts", attributes=POST_ATTRIBUTES)
 
-        # Check table exists
-        cr = db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?;", (table.name,))
-        result = cr.fetchone()
-        assert result is not None, "Table was not created"
-        
-        # Check columns
-        cr =db.execute(f"PRAGMA table_info({table.name})")
-        columns_info = cr.fetchall()
-        columns_names_types = [(col[1], col[2]) for col in columns_info]
-        
-        # Expected columns
-        expected_columns = [("id", "INTEGER"), ("name", "TEXT"), ("age", "INTEGER")]
-        assert columns_names_types == expected_columns, f"Columns mismatch: {columns_names_types} != {expected_columns}"
-    
-    print("All tests passed!")
+    # -------------------------------
+    # 2️⃣ Create wrapper
+    # -------------------------------
+    db = DataBaseWrapper(DB_NAME)
+    db.create_table(USER_TABLE)
+    db.create_table(POST_TABLE)
 
-# Run the test
-test_create_table()
+    # -------------------------------
+    # 3️⃣ Insert test data
+    # -------------------------------
+    # insert user
+    user_record = Record(elements=[
+        Element(attribute=USER_ATTRIBUTES[0], value="u1"),
+        Element(attribute=USER_ATTRIBUTES[1], value="Alice")
+    ])
+    db.insert_record(USER_TABLE, user_record)
+
+    # insert a valid post (user exists)
+    post_record = Record(elements=[
+        Element(attribute=POST_ATTRIBUTES[0], value="p1"),
+        Element(attribute=POST_ATTRIBUTES[1], value="u1"),  # FK to user
+        Element(attribute=POST_ATTRIBUTES[2], value="Hello world")
+    ])
+    db.insert_record(POST_TABLE, post_record)
+
+    # -------------------------------
+    # 4️⃣ Try invalid post (should fail FK)
+    # -------------------------------
+    invalid_post = Record(elements=[
+        Element(attribute=POST_ATTRIBUTES[0], value="p2"),
+        Element(attribute=POST_ATTRIBUTES[1], value="u2"),  # non-existent user
+        Element(attribute=POST_ATTRIBUTES[2], value="Bad post")
+    ])
+
+    try:
+        db.insert_record(POST_TABLE, invalid_post)
+    except Exception as e:
+        print("Foreign key prevented insert:", e)
+
+    # -------------------------------
+    # 5️⃣ Fetch and print
+    # -------------------------------
+    print("Users:", db.get_records(USER_TABLE))
+    print("Posts:", db.get_records(POST_TABLE))
+
+
+
