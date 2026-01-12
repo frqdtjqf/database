@@ -1,0 +1,2 @@
+from .repo_managers import LegoDBConverter
+from .convert_rules import LEGO_PART_TABLE, TEMPLATE_MINIFIGURE_TABLE, ACTUAL_MINIFIGURE_TABLE, WEAPON_TABLE

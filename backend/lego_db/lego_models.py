@@ -23,6 +23,7 @@ class Weapon:
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
 class WeaponSlot:
+    id: str
     weapons: frozenset[Weapon] | object = UNDEFINED
 
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
