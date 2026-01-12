@@ -9,32 +9,31 @@ class DataBaseWrapper:
         self.db_name = db_name
 
     def create_table(self, table: Table):
-
         if not table.attributes:
             raise ValueError("Table must have at least one attribute")
 
         columns = []
-        normal_attributes = []
+        foreign_keys = []
 
-        primary_key_found = False
         for attr in table.attributes:
-            if attr.primary_key:
-                if primary_key_found:
-                    raise ValueError("Multiple primary keys defined")
-                columns.append(f"{attr.name} {attr.type} PRIMARY KEY")
-                primary_key_found = True
-            else:
-                normal_attributes.append(f"{attr.name} {attr.type}")
+            col_def = f"{attr.name} {attr.type}"
+            columns.append(col_def)
 
-        columns.extend(normal_attributes)
+            if attr.foreign_key:
+                ref_table, ref_column = attr.foreign_key
+                foreign_keys.append(f"FOREIGN KEY({attr.name}) REFERENCES {ref_table}({ref_column})")
 
-        columns_sql = ",\n".join(columns)
+        pk_attrs = [attr.name for attr in table.attributes if attr.primary_key]
+        if pk_attrs:
+            columns.append(f"PRIMARY KEY ({', '.join(pk_attrs)})")
 
+        columns_sql = ",\n".join(columns + foreign_keys)
         sql = f"CREATE TABLE IF NOT EXISTS {table.name} (\n{columns_sql}\n);"
 
         with self._connect() as db:
             db.execute(sql)
             db.commit()
+
 
     def delete_table(self, table: Table):
         sql = f"DROP TABLE IF EXISTS {table.name}"
@@ -88,4 +87,5 @@ class DataBaseWrapper:
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.db_name)
         conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON")
         return conn

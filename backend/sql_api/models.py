@@ -6,6 +6,7 @@ class Attribute:
     name: str
     type: str
     primary_key: bool = False
+    foreign_key: tuple = None
 
 # eine Tabelle in der Datenbank
 @dataclass
