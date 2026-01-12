@@ -74,7 +74,7 @@ class TemplateMinifigureRepoManager(ParentRepoManager):
 
     def _model_from_record(self, record: Record) -> TemplateMinifigure:
         data = {e.attribute.name: e.value for e in record.elements}
-        template_id = data["id"]
+        template_id = data[PRIMARY_KEY_NAME]
 
         # 1) --- > TODO: load parts from TEMPLATE_MINIFIGURE_PART_TABLE
         parts = self._load_related_models(self.tp, self.part_manager, template_id)
