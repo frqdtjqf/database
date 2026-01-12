@@ -1,5 +1,5 @@
 import sqlite3
-from sql_api.models import *
+from .models import Table, Record, Element
 
 DB_NAME = "database.db"
 
