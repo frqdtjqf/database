@@ -17,14 +17,14 @@ class LegoPart:
 class Weapon:
     id: str
     name: str
-    parts: frozenset[LegoPart] | object = UNDEFINED
+    parts: frozenset[LegoPart] = frozenset()
     description: str = ""
 
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
 class WeaponSlot:
     id: str
-    weapons: frozenset[Weapon] | object = UNDEFINED
+    weapons: frozenset[Weapon] = frozenset()
 
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
@@ -34,8 +34,8 @@ class TemplateMinifigure:
     year: int
     sets: frozenset[str]
 
-    parts: frozenset[LegoPart] | object = UNDEFINED
-    possible_weapons: frozenset[WeaponSlot] | object = UNDEFINED
+    parts: frozenset[LegoPart] = frozenset()
+    possible_weapons: frozenset[WeaponSlot] = frozenset()
     description: str = ""
 
 # eine reale Lego Minifigur im Bestand

@@ -128,7 +128,6 @@ class ParentRepoManager(BaseRepoManager):
         joint_table: Table = relation["joint_table"]
         joint_table_parent_attribute_name: str = relation["parent_column"]
         joint_table_child_attribute_name: str = relation["child_column"]
-        child_table: Table = relation["child_table"]
 
         for model in child_models:
             # add child model in its own Table
@@ -149,6 +148,6 @@ class ParentRepoManager(BaseRepoManager):
             )
 
             self.db.insert_record(
-                table=child_table,
+                table=joint_table,
                 record=joint_record
             )
