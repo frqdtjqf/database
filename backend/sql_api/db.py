@@ -1,5 +1,5 @@
 import sqlite3
-from .models import Table, Record, Element
+from .models import Table, Record, Element, Attribute
 
 DB_NAME = "database.db"
 
@@ -72,10 +72,30 @@ class DataBaseWrapper:
             elements = []
             for attr in table.attributes:
                 value = row[attr.name]
-                element = Element(attribute=attr, value=value)
-                elements.append(element)
-            record = Record(elements=elements)
-            records.append(record)
+                elements.append(Element(attribute=attr, value=value))
+            records.append(Record(elements=elements))
+
+        return records
+    
+    def get_query_records(self, table: Table, query_attribute: Attribute, query_value: any) -> list[Record]:
+        """Return all Records, which have Element(attribute=query_attribute, value=query_value)"""
+        if query_attribute not in table.attributes:
+            raise ValueError(f"Table '{table.name}' has no attribute '{query_attribute.name}'")
+        
+        sql = f"SELECT * from {table.name} WHERE {query_attribute.name} = :val"
+        params = {"val": query_value}
+
+        with self._connect() as db:
+            cursor = db.execute(sql, params)
+            rows = cursor.fetchall()
+
+        records = []
+        for row in rows:
+            elements = []
+            for attr in table.attributes:
+                value = row[attr.name]
+                elements.append(Element(attribute=attr, value=value))
+            records.append(Record(elements=elements))
 
         return records
     
