@@ -6,7 +6,7 @@ from dataclasses import dataclass
 UNDEFINED = object()
 
 # Lego Teil
-@dataclass
+@dataclass(frozen=True)
 class LegoPart:
     id: str
     color: str
@@ -17,13 +17,13 @@ class LegoPart:
 class Weapon:
     id: str
     name: str
-    parts: frozenset[LegoPart]
+    parts: frozenset[LegoPart] | object = UNDEFINED
     description: str = ""
 
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
 class WeaponSlot:
-    weapons: frozenset[Weapon]
+    weapons: frozenset[Weapon] | object = UNDEFINED
 
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
