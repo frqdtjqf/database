@@ -1,5 +1,8 @@
 from flask import Flask, render_template
-from backend.lego_db import *
+from backend.lego_db import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
+from frontend.api_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager, WebTable, BaseWebManager
+from backend.lego_db import LegoDBInterface
+from backend.sql_api import DataBaseWrapper
 
 # Example LegoParts
 body = LegoPart(bricklink_part_id="body_01", bricklink_color_id="1")
@@ -44,7 +47,9 @@ actual_knight2 = ActualMinifigure(
 
 app = Flask(__name__)
 
-db_inter = LegoDBInterface("database.db")
+db = DataBaseWrapper("database.db")
+
+db_inter = LegoDBInterface(db)
 db_inter.delete_all_tables()
 db_inter.create_all_tables()
 
@@ -66,54 +71,37 @@ def index():
 
 @app.route("/lego_parts")
 def render_lego_parts():
-    parts = db_inter.get_parts()
-    columns, rows = prepare_table_data(parts)
-    return render_generic(table_name="Lego Parts", columns=columns, rows=rows)
+    mng = LegoPartWebManager(db)
+    return render_generic(web_mng=mng)
 
 @app.route("/weapons")
 def render_weapons():
-    weapons = db_inter.get_all_weapons()
-    columns, rows = prepare_table_data(weapons)
-    return render_generic(table_name="Weapons", columns=columns, rows=rows)
+    mng = WeaponWebManager(db)
+    return render_generic(web_mng=mng)
 
 
 @app.route("/weapon_slots")
 def render_weapon_slots():
-    weapon_slots = db_inter.get_all_weapon_slots()
-    columns, rows = prepare_table_data(weapon_slots)
-    return render_generic(table_name="Weapon Slots", columns=columns, rows=rows)
+    mng = WeaponSlotWebManager(db)
+    return render_generic(web_mng=mng)
 
 
 @app.route("/template_minifigures")
 def render_template_minifigures():
-    templates = db_inter.get_all_templates()
-    columns, rows = prepare_table_data(templates)
-    return render_generic(table_name="Template Minifigures", columns=columns, rows=rows)
+    mng = TemplateMinifigureWebManager(db)
+    return render_generic(web_mng=mng)
 
 
 @app.route("/actual_minifigures")
 def render_actual_minifigures():
-    actuals = db_inter.get_all_actual_minifigures()
-    columns, rows = prepare_table_data(actuals)
-    return render_generic(table_name="Actual Minifigures", columns=columns, rows=rows)
+    mng = ActualMinifigureWebManager(db)
+    return render_generic(web_mng=mng)
 
 
 # --- Helper ---
-def render_generic(table_name: str, columns: list[str], rows: list[dict[str, str]]):
-    return render_template("generic.html", title=table_name, columns=columns, rows=rows)
-
-def prepare_table_data(elements: list[BasicModel]):
-    if not elements:
-        columns = []
-        rows = []
-    else:
-        columns, _ = elements[0].get_column_row_data()
-        rows = []
-        for e in elements:
-            _, rows_e = e.get_column_row_data()
-            rows.append(rows_e)
-
-    return columns, rows
+def render_generic(web_mng: BaseWebManager):
+    web_table = web_mng.get_web_table()
+    return render_template("generic.html", title=web_table.name, columns=web_table.columns, rows=web_table.rows)
 
 if __name__ == "__main__":
     app.run(debug=True)

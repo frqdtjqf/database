@@ -13,8 +13,8 @@ class SuperManager:
 
 class LegoDBInterface:
 
-    def __init__(self, data_base_name: str):
-        self.db = DataBaseWrapper(data_base_name)
+    def __init__(self, db: DataBaseWrapper):
+        self.db = db
 
         self.super_mgn = SuperManager(
             weapon_mgn=WeaponRepoManager(self.db),

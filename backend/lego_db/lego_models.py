@@ -42,20 +42,6 @@ class LegoPart(BasicModel):
 
     def id_source(self) -> str:
         return f"{self.bricklink_part_id}_{self.bricklink_color_id}"
-    
-    def get_column_row_data(self) -> tuple[list[str], dict[str, str]]:
-        columns, rows = super().get_column_row_data()
-
-        new_columns = ["BrickLink Part ID", "BrickLink Color ID", "Lego Element ID", "Lego Design ID", "Description"]
-        rows.update({
-            new_columns[0]: self.bricklink_part_id,
-            new_columns[1]: self.bricklink_color_id,
-            new_columns[2]: self.lego_element_id,
-            new_columns[3]: self.lego_design_id,
-            new_columns[4]: self.description
-        })
-        columns.extend(new_columns)
-        return columns, rows
 
 # Waffentypen für Minifiguren
 @dataclass(frozen=True)
@@ -70,18 +56,6 @@ class Weapon(BasicModel):
         for pid in part_ids:
             base += f"_{pid}"
         return base
-    
-    def get_column_row_data(self) -> tuple[list[str], dict[str, str]]:
-        columns, rows = super().get_column_row_data()
-        new_columns = ["Name", "Parts", "Description"]
-        parts_str = ", ".join(part.id for part in self.parts)
-        rows.update({
-            new_columns[0]: self.name,
-            new_columns[1]: parts_str,
-            new_columns[2]: self.description
-        })
-        columns.extend(new_columns)
-        return columns, rows
 
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
@@ -94,16 +68,6 @@ class WeaponSlot(BasicModel):
 
         weapon_ids = sorted(w.id for w in self.weapons)
         return "slot_" + "_".join(weapon_ids)
-    
-    def get_column_row_data(self) -> tuple[list[str], dict[str, str]]:
-        columns, rows = super().get_column_row_data()
-        new_columns = ["Weapons"]
-        weapons_str = ", ".join(weapon.id for weapon in self.weapons)
-        rows.update({
-            new_columns[0]: weapons_str
-        })
-        columns.extend(new_columns)
-        return columns, rows
 
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
@@ -119,24 +83,6 @@ class TemplateMinifigure(BasicModel):
 
     def id_source(self) -> str:
         return self.bricklink_fig_id
-    
-    def get_column_row_data(self) -> tuple[list[str], dict[str, str]]:
-        columns, rows = super().get_column_row_data()
-        new_columns = ["BrickLink Figure ID", "Name", "Year", "Sets", "Parts", "Possible Weapon Slots", "Description"]
-        sets_str = ", ".join(set_id for set_id in self.sets)
-        parts_str = ", ".join(part.id for part in self.parts)
-        posw_str = ", ".join(slot.id for slot in self.possible_weapons)
-        rows.update({
-            new_columns[0]: self.bricklink_fig_id,
-            new_columns[1]: self.name,
-            new_columns[2]: self.year,
-            new_columns[3]: sets_str,
-            new_columns[4]: parts_str,
-            new_columns[5]: posw_str,
-            new_columns[6]: self.description
-        })
-        columns.extend(new_columns)
-        return columns, rows
 
 # eine reale Lego Minifigur im Bestand
 @dataclass(frozen=True)
@@ -166,17 +112,3 @@ class ActualMinifigure(BasicModel):
     def id_source(self) -> str:
         base = f"{self.template.id}_{self.box_number}_{self.position_in_box}"
         return base
-    
-    def get_column_row_data(self) -> tuple[list[str], dict[str, str]]:
-        columns, rows = super().get_column_row_data()
-        new_columns = ["Template ID", "Box Number", "Position Number", "Weapon Slot", "Condition"]
-        rows.update({
-            new_columns[0]: self.template.id,
-            new_columns[1]: self.box_number,
-            new_columns[2]: self.position_in_box,
-            new_columns[3]: self.weapon_slot.id,
-            new_columns[4]: self.condition
-        })
-        columns.extend(new_columns)
-        return columns, rows
-
