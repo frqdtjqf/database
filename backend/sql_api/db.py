@@ -37,7 +37,9 @@ class DataBaseWrapper:
     def delete_table(self, table: Table):
         sql = f"DROP TABLE IF EXISTS {table.name}"
         with self._connect() as db:
+            db.execute("PRAGMA foreign_keys = OFF;")
             db.execute(sql)
+            db.execute("PRAGMA foreign_keys = ON;")
             db.commit()
 
     def insert_record(self,table: Table, record: Record):

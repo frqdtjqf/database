@@ -1,13 +1,34 @@
-from backend.sql_api import DataBaseWrapper, Table
-from backend.lego_db.lego_models import LegoPart, Weapon
-from backend.test import test_db, testing
+from backend.lego_db import LegoDBInterface
 
-LegoParts = [
-    LegoPart(id="3001", color="Red", description="Brick 2x4"),
+db = LegoDBInterface("database.db").db
+
+from backend.lego_db.db_converter.registry import RELATIONS, LEGO_PART_TABLE, TEMPLATE_MINIFIGURE_TABLE, WEAPON_TABLE, WEAPON_SLOT_TABLE, ACTUAL_MINIFIGURE_TABLE
+
+def print_table(db, table):
+    print(f"\n=== Table: {table.name} ===")
+    records = db.get_records(table)
+    if not records:
+        print("No entries")
+        return
+
+    for r in records:
+        row = {e.attribute.name: e.value for e in r.elements}
+        print(row)
+
+all_tables = [
+    LEGO_PART_TABLE,
+    TEMPLATE_MINIFIGURE_TABLE,
+    WEAPON_TABLE,
+    WEAPON_SLOT_TABLE,
+    ACTUAL_MINIFIGURE_TABLE
 ]
 
-Weapons = [
-    Weapon(id="W001", name="Sword", description="A simple sword", parts=frozenset([LegoParts[0]])),
-]
+# Add joint tables from RELATIONS
+for rel in RELATIONS.values():
+    all_tables.append(rel["joint_table"])
 
-testing()
+for table in all_tables:
+    print_table(db, table)
+
+
+

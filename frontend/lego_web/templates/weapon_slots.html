@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Weapons Slots</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Weapons</th>
+    </tr>
+
+    {% for weapon_slot in weapon_slots %}
+    <tr>
+        <td>{{ weapon_slot.id }}</td>
+        <td>
+            {% for weapon in weapon_slot.weapons %}
+                {{ weapon.id }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}

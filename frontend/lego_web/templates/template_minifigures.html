@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Minifigure Templates</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Year</th>
+        <th>Sets</th>
+        <th>Parts</th>
+        <th>Possible Weapons Slots</th>
+        <th>Description</th>
+    </tr>
+
+    {% for tmp in templates %}
+    <tr>
+        <td>{{ tmp.id }}</td>
+        <td>{{ tmp.name }}</td>
+        <td>{{ tmp.year }}</td>
+        <td>
+            {% for set in tmp.sets %}
+                {{ set }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            {% for part in tmp.parts %}
+                {{ part.id }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+        <td>
+            {% for weapon_slot in tmp.possible_weapons %}
+                {{ weapon_slot.id }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </td>
+        <td>{{ tmp.description }}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}

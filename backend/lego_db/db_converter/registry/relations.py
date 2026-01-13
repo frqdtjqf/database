@@ -1,13 +1,7 @@
 # backend/lego_db/relation_registry.py
 
-from backend.lego_db.db_converter.registry.tables import TEMPLATE_MINIFIGURE_TABLE, LEGO_PART_TABLE, WEAPON_SLOT_TABLE, WEAPON_TABLE, PRIMARY_KEY_NAME
+from backend.lego_db.db_converter.registry.tables import *
 from backend.sql_api import Attribute, Table
-
-# column names
-PART_NAME = "part_id"
-TEMPLATE_NAME = "template_id"
-WEAPON_NAME = "weapon_id"
-WEAPON_SLOT_NAME = "weapon_slot_name"
 
 
 # joint tables to define a N:M mapping

@@ -8,23 +8,33 @@ from backend.lego_db.db_converter.generic_managers import ParentRepoManager, Bas
 class LegoPartRepoManager(BaseRepoManager):
     table = LEGO_PART_TABLE
     
+    joint_tables = []
+
     def _model_from_record(self, record: Record) -> LegoPart:
         data = {e.attribute.name: e.value for e in record.elements}
         return LegoPart(**data)
     
 class ActualMinifigureRepoManager(BaseRepoManager):
     table = ACTUAL_MINIFIGURE_TABLE
+    
+    joint_tables = []
 
     def __init__(self, db):
         super().__init__(db)
         self.template_manager = TemplateMinifigureRepoManager(db)
+        self.weapon_slot_manager = WeaponSlotRepoManager(db)
 
     def _model_from_record(self, record: Record) -> ActualMinifigure:
-        data = {e.attribute.name: e.value for e in record.elements}
+        data = {e.attribute.name: e.value for e in record.elements if e.attribute.name != PRIMARY_KEY_NAME}
 
-        template = self.template_manager.get_model_by_primary_key(data[TEMPLATE_NAME])
+        template_id = data.pop(TEMPLATE_NAME)
+        template = self.template_manager.get_model_by_primary_key(template_id)
+
+        weapon_slot_id = data.pop(WEAPON_SLOT_NAME)
+        weapon_slot = self.weapon_slot_manager.get_model_by_primary_key(weapon_slot_id)
 
         data["template"] = template
+        data["weaponSlot"] = weapon_slot
 
         return ActualMinifigure(**data)
 
@@ -33,6 +43,8 @@ class ActualMinifigureRepoManager(BaseRepoManager):
         for attr in self.table.attributes:
             if attr.name == TEMPLATE_NAME:
                 value = model.template.id
+            elif attr.name == WEAPON_SLOT_NAME:
+                value = model.weaponSlot.id
             else:
                 value = getattr(model, attr.name)
             elements.append(Element(attribute=attr, value=value))
@@ -43,20 +55,19 @@ class ActualMinifigureRepoManager(BaseRepoManager):
 class WeaponSlotRepoManager(ParentRepoManager):
     # needed constants
     table = WEAPON_SLOT_TABLE
+
     wsw = WEAPON_SLOT_WEAPONS_JOINT
+    joint_tables = [WEAPON_SLOT_WEAPON_TABLE]
 
     def __init__(self, db):
         super().__init__(db)
         self.weapon_manager = WeaponRepoManager(db)
     
     def _model_from_record(self, record: Record) -> WeaponSlot:
-        data = {e.attribute.name: e.value for e in record.elements}
-        slot_id = data[PRIMARY_KEY_NAME]
+        slot_id = record.get_primary_key_element().value
 
         weapons = self._load_related_models(self.wsw, self.weapon_manager, slot_id)
-
-        data["weapons"] = weapons
-        return WeaponSlot(**data)
+        return WeaponSlot(weapons=weapons)
     
     def _persist_relations(self, model: WeaponSlot):
         self._add_relations(model.weapons, self.weapon_manager, self.wsw, model.id)
@@ -64,8 +75,10 @@ class WeaponSlotRepoManager(ParentRepoManager):
 class TemplateMinifigureRepoManager(ParentRepoManager):
     # needed constants
     table = TEMPLATE_MINIFIGURE_TABLE
+
     tp = TEMPLATE_PARTS_JOINT
     tws = TEMPLATE_WEAPON_SLOTS_JOINT
+    joint_tables = [TEMPLATE_MINIFIGURE_PART_TABLE, TEMPLATE_MINIFIGURE_WEAPON_SLOT_TABLE]
 
     def __init__(self, db):
         super().__init__(db)
@@ -74,7 +87,7 @@ class TemplateMinifigureRepoManager(ParentRepoManager):
 
     def _model_from_record(self, record: Record) -> TemplateMinifigure:
         data = {e.attribute.name: e.value for e in record.elements}
-        template_id = data[PRIMARY_KEY_NAME]
+        template_id = record.get_primary_key_element().value
 
         # 1) --- > TODO: load parts from TEMPLATE_MINIFIGURE_PART_TABLE
         parts = self._load_related_models(self.tp, self.part_manager, template_id)
@@ -103,7 +116,10 @@ class TemplateMinifigureRepoManager(ParentRepoManager):
 class WeaponRepoManager(ParentRepoManager):
     # needed constants
     table = WEAPON_TABLE
+
     wp = WEAPON_PARTS_JOINT
+    joint_tables = [WEAPON_PART_TABLE]
+
 
     def __init__(self, db):
         super().__init__(db)
@@ -111,7 +127,7 @@ class WeaponRepoManager(ParentRepoManager):
 
     def _model_from_record(self, record: Record) -> Weapon:
         data = {e.attribute.name: e.value for e in record.elements}
-        weapon_id = data[PRIMARY_KEY_NAME]
+        weapon_id = record.get_primary_key_element().value
 
         # TODO: load parts from WEAPON_PART_TABLE
         parts = self._load_related_models(self.wp, self.part_manager, weapon_id)

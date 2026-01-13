@@ -7,6 +7,8 @@ from backend.sql_api import DataBaseWrapper
 class BaseRepoManager:
     table: Table
 
+    joint_tables: list[Table]
+
     def __init__(self, db: DataBaseWrapper):
         self.db = db
 
@@ -27,11 +29,18 @@ class BaseRepoManager:
         return [self._model_from_record(record) for record in records]
 
     # --- Table Management ---
-    def delete_table(self):
+    def delete_tables(self):
+        for joint_tab in self.joint_tables:
+            self.db.delete_table(joint_tab)
         self.db.delete_table(self.table)
 
-    def create_table(self):
-        self.db.create_table(self.table)
+    def create_tables(self):
+        try:
+            self.db.create_table(self.table)
+            for joint_tab in self.joint_tables:
+                self.db.create_table(joint_tab)
+        except Exception as e:
+            print(e)
 
     # --- Helpers ---
     def get_model_by_primary_key(self, pk_value: str) -> LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot | None:

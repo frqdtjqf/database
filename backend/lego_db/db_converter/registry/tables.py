@@ -3,6 +3,12 @@ from backend.sql_api import Attribute
 
 PRIMARY_KEY_NAME = "id"
 
+# column names
+PART_NAME = "part_id"
+TEMPLATE_NAME = "template_id"
+WEAPON_NAME = "weapon_id"
+WEAPON_SLOT_NAME = "weapon_slot_id"
+
 LEGO_PART_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
     Attribute(name="color", type="TEXT"),
@@ -19,7 +25,8 @@ TEMPLATE_MINIFIGURE_ATTRIBUTES = [
 
 ACTUAL_MINIFIGURE_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
-    Attribute(name="template_id", type="TEXT", foreign_key=("template_minifigure", PRIMARY_KEY_NAME)),
+    Attribute(name=TEMPLATE_NAME, type="TEXT", foreign_key=("template_minifigure", PRIMARY_KEY_NAME)),
+    Attribute(name=WEAPON_SLOT_NAME, type="TEXT", foreign_key=("weapon_slot", PRIMARY_KEY_NAME)),
     Attribute(name="box_number", type="INTEGER"),
     Attribute(name="position_in_box", type="INTEGER"),
     Attribute(name="condition", type="TEXT")

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Lego Parts</h2>
+
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Color</th>
+        <th>Description</th>
+    </tr>
+
+    {% for part in parts %}
+    <tr>
+        <td>{{ part.id }}</td>
+        <td>{{ part.color }}</td>
+        <td>{{ part.description }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
