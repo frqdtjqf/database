@@ -12,6 +12,7 @@ class LegoPartRepoManager(BaseRepoManager):
 
     def _model_from_record(self, record: Record) -> LegoPart:
         data = {e.attribute.name: e.value for e in record.elements}
+        data.pop(PRIMARY_KEY_NAME)
         return LegoPart(**data)
     
 class ActualMinifigureRepoManager(BaseRepoManager):
@@ -25,7 +26,7 @@ class ActualMinifigureRepoManager(BaseRepoManager):
         self.weapon_slot_manager = WeaponSlotRepoManager(db)
 
     def _model_from_record(self, record: Record) -> ActualMinifigure:
-        data = {e.attribute.name: e.value for e in record.elements if e.attribute.name != PRIMARY_KEY_NAME}
+        data = {e.attribute.name: e.value for e in record.elements}
 
         template_id = data.pop(TEMPLATE_NAME)
         template = self.template_manager.get_model_by_primary_key(template_id)
@@ -34,8 +35,8 @@ class ActualMinifigureRepoManager(BaseRepoManager):
         weapon_slot = self.weapon_slot_manager.get_model_by_primary_key(weapon_slot_id)
 
         data["template"] = template
-        data["weaponSlot"] = weapon_slot
-
+        data["weapon_slot"] = weapon_slot
+        data.pop(PRIMARY_KEY_NAME)
         return ActualMinifigure(**data)
 
     def _record_from_model(self, model: ActualMinifigure) -> Record:
@@ -44,7 +45,7 @@ class ActualMinifigureRepoManager(BaseRepoManager):
             if attr.name == TEMPLATE_NAME:
                 value = model.template.id
             elif attr.name == WEAPON_SLOT_NAME:
-                value = model.weaponSlot.id
+                value = model.weapon_slot.id
             else:
                 value = getattr(model, attr.name)
             elements.append(Element(attribute=attr, value=value))
@@ -102,6 +103,7 @@ class TemplateMinifigureRepoManager(ParentRepoManager):
         data["possible_weapons"] = possible_weapons
         data["sets"] = sets_frozen
 
+        data.pop(PRIMARY_KEY_NAME)
         return TemplateMinifigure(**data)
     
     def _record_from_model(self, model: TemplateMinifigure):
@@ -138,6 +140,7 @@ class WeaponRepoManager(ParentRepoManager):
 
         data["parts"] = parts
 
+        data.pop(PRIMARY_KEY_NAME)
         return Weapon(**data)
     
     def _persist_relations(self, model: Weapon):

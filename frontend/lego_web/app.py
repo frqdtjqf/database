@@ -16,7 +16,7 @@ slot2 = WeaponSlot(weapons=frozenset([shield]))  # another possible slot
 
 # Template Minifigure
 knight_template = TemplateMinifigure(
-    bricklink_id="knight_01",
+    bricklink_fig_id="knight_01",
     name="Red Knight",
     year=2020,
     sets=frozenset(["SetA", "SetB"]),
@@ -30,7 +30,7 @@ actual_knight1 = ActualMinifigure(
     template=knight_template,
     box_number=1,
     position_in_box=1,
-    weaponSlot=slot1,
+    weapon_slot=slot1,
     condition="new"
 )
 
@@ -38,7 +38,7 @@ actual_knight2 = ActualMinifigure(
     template=knight_template,
     box_number=1,
     position_in_box=2,
-    weaponSlot=slot2,
+    weapon_slot=slot2,
     condition="used"
 )
 

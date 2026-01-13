@@ -11,12 +11,16 @@ WEAPON_SLOT_NAME = "weapon_slot_id"
 
 LEGO_PART_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
-    Attribute(name="color", type="TEXT"),
+    Attribute(name="bricklink_part_id", type="TEXT"),
+    Attribute(name="bricklink_color_id", type="TEXT"),
+    Attribute(name="lego_element_id", type="TEXT"),
+    Attribute(name="lego_design_id", type="TEXT"),
     Attribute(name="description", type="TEXT")
 ]
 
 TEMPLATE_MINIFIGURE_ATTRIBUTES = [
-    Attribute(name="id", type="TEXT", primary_key=True),
+    Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
+    Attribute(name="bricklink_fig_id", type="TEXT"),
     Attribute(name="name", type="TEXT"),
     Attribute(name="year", type="INTEGER"),
     Attribute(name="sets", type="TEXT"),

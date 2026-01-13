@@ -6,6 +6,7 @@
 <table border="1">
     <tr>
         <th>ID</th>
+        <th>BrickLink ID</th>
         <th>Name</th>
         <th>Year</th>
         <th>Sets</th>
@@ -17,6 +18,7 @@
     {% for tmp in templates %}
     <tr>
         <td>{{ tmp.id }}</td>
+        <td>{{ tmp.bricklink_fig_id }}</td>
         <td>{{ tmp.name }}</td>
         <td>{{ tmp.year }}</td>
         <td>

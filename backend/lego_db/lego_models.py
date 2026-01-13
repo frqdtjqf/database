@@ -27,8 +27,8 @@ class LegoPart(BasicElement):
     bricklink_part_id: str
     bricklink_color_id: str
 
-    lego_element_id: str | None = None
-    lego_design_id: str | None = None
+    lego_element_id: str | None = ""
+    lego_design_id: str | None = ""
 
     description: str = ""
 
@@ -64,7 +64,7 @@ class WeaponSlot(BasicElement):
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
 class TemplateMinifigure(BasicElement):
-    bricklink_id: str
+    bricklink_fig_id: str
     name: str
     year: int
     sets: frozenset[str]
@@ -74,7 +74,7 @@ class TemplateMinifigure(BasicElement):
     description: str = ""
 
     def id_source(self) -> str:
-        return self.bricklink_id
+        return self.bricklink_fig_id
 
 # eine reale Lego Minifigur im Bestand
 @dataclass(frozen=True)
@@ -84,7 +84,7 @@ class ActualMinifigure(BasicElement):
     box_number: int
     position_in_box: int
 
-    weapon_slot: WeaponSlot | None = None
+    weapon_slot: WeaponSlot | None = WeaponSlot(frozenset())
     condition: str = ""
 
     def __post_init__(self):
@@ -93,11 +93,11 @@ class ActualMinifigure(BasicElement):
 
     def validate_weapon(self) -> bool:
         """Validate that the assigned weapon is allowed for the template."""
-        if self.weaponSlot is None:
+        if not self.weapon_slot.weapons:
             return True
         if not self.template.possible_weapons:
             raise ValueError(f"Template {self.template.name} does not allow any weapons, but weapon {self.weapon_slot.weapons} was assigned.")
-        if self.weaponSlot not in self.template.possible_weapons:
+        if self.weapon_slot not in self.template.possible_weapons:
             raise ValueError(f"Weapon {self.weapon_slot.weapons} is not allowed for template {self.template.name}.")
         return True
 
