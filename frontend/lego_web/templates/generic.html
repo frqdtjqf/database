@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+
+<table border="1">
+    <tr>
+        {% for column in columns %}
+        <th>{{ column }}</th>
+        {% endfor %}
+    </tr>
+
+    {% for row in rows %}
+    <tr>
+        {% for column in columns %}
+        <td>{{ row[column] }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Add New {{ title[:-1] }}</h3>
+<form method="POST" action="{{ add_url }}">
+    {% for column in columns if column != "ID" %}
+    <label>{{ column }}: <input type="text" name="{{ column }}"></label><br>
+    {% endfor %}
+    <button type="submit">Add</button>
+</form>
+{% endblock %}

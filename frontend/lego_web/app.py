@@ -67,27 +67,53 @@ def index():
 @app.route("/lego_parts")
 def render_lego_parts():
     parts = db_inter.get_parts()
-    return render_template("lego_parts.html", parts=parts)
+    columns, rows = prepare_table_data(parts)
+    return render_generic(table_name="Lego Parts", columns=columns, rows=rows)
 
 @app.route("/weapons")
 def render_weapons():
     weapons = db_inter.get_all_weapons()
-    return render_template("weapons.html", weapons=weapons)
+    columns, rows = prepare_table_data(weapons)
+    return render_generic(table_name="Weapons", columns=columns, rows=rows)
+
 
 @app.route("/weapon_slots")
 def render_weapon_slots():
     weapon_slots = db_inter.get_all_weapon_slots()
-    return render_template("weapon_slots.html", weapon_slots=weapon_slots)
+    columns, rows = prepare_table_data(weapon_slots)
+    return render_generic(table_name="Weapon Slots", columns=columns, rows=rows)
+
 
 @app.route("/template_minifigures")
 def render_template_minifigures():
-    template_minifigures = db_inter.get_all_templates()
-    return render_template("template_minifigures.html", templates=template_minifigures)
+    templates = db_inter.get_all_templates()
+    columns, rows = prepare_table_data(templates)
+    return render_generic(table_name="Template Minifigures", columns=columns, rows=rows)
+
 
 @app.route("/actual_minifigures")
 def render_actual_minifigures():
-    actual_minifigures = db_inter.get_all_actual_minifigures()
-    return render_template("actual_minifigures.html", actuals=actual_minifigures)
+    actuals = db_inter.get_all_actual_minifigures()
+    columns, rows = prepare_table_data(actuals)
+    return render_generic(table_name="Actual Minifigures", columns=columns, rows=rows)
+
+
+# --- Helper ---
+def render_generic(table_name: str, columns: list[str], rows: list[dict[str, str]]):
+    return render_template("generic.html", title=table_name, columns=columns, rows=rows)
+
+def prepare_table_data(elements: list[BasicModel]):
+    if not elements:
+        columns = []
+        rows = []
+    else:
+        columns, _ = elements[0].get_column_row_data()
+        rows = []
+        for e in elements:
+            _, rows_e = e.get_column_row_data()
+            rows.append(rows_e)
+
+    return columns, rows
 
 if __name__ == "__main__":
     app.run(debug=True)
