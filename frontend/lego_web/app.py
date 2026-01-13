@@ -2,13 +2,13 @@ from flask import Flask, render_template
 from backend.lego_db import *
 
 # Example LegoParts
-body = LegoPart(id="body_01", color="red")
-legs = LegoPart(id="legs_01", color="blue")
-helmet = LegoPart(id="helmet_01", color="yellow")
+body = LegoPart(bricklink_part_id="body_01", bricklink_color_id="1")
+legs = LegoPart(bricklink_part_id="legs_01", bricklink_color_id="2")
+helmet = LegoPart(bricklink_part_id="helmet_01", bricklink_color_id="1")
 
 # Example Weapons
-sword = Weapon(id="sword_01", name="Sword", parts=frozenset([body]))
-shield = Weapon(id="shield_01", name="Shield", parts=frozenset([helmet]))
+sword = Weapon(name="Sword", parts=frozenset([body]))
+shield = Weapon(name="Shield", parts=frozenset([helmet]))
 
 # WeaponSlot (contains a set of weapons)
 slot1 = WeaponSlot(weapons=frozenset([sword, shield]))
@@ -16,7 +16,7 @@ slot2 = WeaponSlot(weapons=frozenset([shield]))  # another possible slot
 
 # Template Minifigure
 knight_template = TemplateMinifigure(
-    id="knight_01",
+    bricklink_id="knight_01",
     name="Red Knight",
     year=2020,
     sets=frozenset(["SetA", "SetB"]),

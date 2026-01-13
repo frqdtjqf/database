@@ -6,45 +6,65 @@ import hashlib
 
 UNDEFINED = object()
 
+@dataclass(frozen=True)
+class BasicElement:
+    id: str = field(init=False)
+
+    def __post_init__(self):
+        object.__setattr__(self, "id", self.compute_id())
+
+    def compute_id(self) -> str:
+        base = self.id_source()
+        digest = hashlib.sha256(base.encode()).hexdigest()
+        return digest[:16]
+    
+    def id_source(self) -> str:
+        raise NotImplementedError("id_source missing implementation")
+
 # Lego Teil
 @dataclass(frozen=True)
-class LegoPart:
-    id: str
-    color: str
+class LegoPart(BasicElement):
+    bricklink_part_id: str
+    bricklink_color_id: str
+
+    lego_element_id: str | None = None
+    lego_design_id: str | None = None
+
     description: str = ""
+
+    def id_source(self) -> str:
+        return f"{self.bricklink_part_id}_{self.bricklink_color_id}"
 
 # Waffentypen für Minifiguren
 @dataclass(frozen=True)
-class Weapon:
-    id: str
+class Weapon(BasicElement):
     name: str
     parts: frozenset[LegoPart] = frozenset()
     description: str = ""
 
+    def id_source(self) -> str:
+        base = self.name
+        part_ids = sorted(part.id for part in self.parts)
+        for pid in part_ids:
+            base += f"_{pid}"
+        return base
+
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
-class WeaponSlot:
+class WeaponSlot(BasicElement):
     weapons: frozenset[Weapon] = frozenset()
-    id: str = field(init=False)
 
-    def __post_init__(self):
-        # bypass frozen
-        object.__setattr__(self, 'id', self.compute_id())
-
-    def compute_id(self) -> str:
-        """Compute a deterministic ID based on the contained weapons."""
+    def id_source(self) -> str:
         if not self.weapons:
             return "empty_slot"
-        # Sort weapons by ID for consistency
+
         weapon_ids = sorted(w.id for w in self.weapons)
-        concat = ",".join(weapon_ids)
-        # Use a short hash for uniqueness
-        return hashlib.sha256(concat.encode()).hexdigest()[:8]
+        return "slot_" + "_".join(weapon_ids)
 
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
-class TemplateMinifigure:
-    id: str
+class TemplateMinifigure(BasicElement):
+    bricklink_id: str
     name: str
     year: int
     sets: frozenset[str]
@@ -53,34 +73,35 @@ class TemplateMinifigure:
     possible_weapons: frozenset[WeaponSlot] = frozenset()
     description: str = ""
 
+    def id_source(self) -> str:
+        return self.bricklink_id
+
 # eine reale Lego Minifigur im Bestand
 @dataclass(frozen=True)
-class ActualMinifigure:
+class ActualMinifigure(BasicElement):
     template: TemplateMinifigure
 
     box_number: int
     position_in_box: int
 
-    weaponSlot: WeaponSlot | None = None
+    weapon_slot: WeaponSlot | None = None
     condition: str = ""
-    id: str = field(init=False)
 
     def __post_init__(self):
+        super().__post_init__()
         self.validate_weapon()
-        object.__setattr__(self, 'id', self.compute_id())
 
     def validate_weapon(self) -> bool:
         """Validate that the assigned weapon is allowed for the template."""
         if self.weaponSlot is None:
             return True
-        if self.template.possible_weapons is None:
-            raise ValueError(f"Template {self.template.name} does not allow any weapons, but weapon {self.weaponSlot.weapons} was assigned.")
+        if not self.template.possible_weapons:
+            raise ValueError(f"Template {self.template.name} does not allow any weapons, but weapon {self.weapon_slot.weapons} was assigned.")
         if self.weaponSlot not in self.template.possible_weapons:
-            raise ValueError(f"Weapon {self.weaponSlot.weapons} is not allowed for template {self.template.name}.")
+            raise ValueError(f"Weapon {self.weapon_slot.weapons} is not allowed for template {self.template.name}.")
         return True
 
-    def compute_id(self) -> str:
-        """Compute a deterministic ID based on position and template id"""
-        unique_str = f"{self.template.id}_{self.box_number}_{self.position_in_box}"
-        return hashlib.sha256(unique_str.encode()).hexdigest()[:8]
+    def id_source(self) -> str:
+        base = f"{self.template.id}_{self.box_number}_{self.position_in_box}"
+        return base
 
