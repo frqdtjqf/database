@@ -95,8 +95,12 @@ class TemplateMinifigureRepoManager(ParentRepoManager):
         # 2) --- > TODO: load weaponSlots from TEMPLATE_MINIFIGURE_WEAPON_SLOT_TABLE
         possible_weapons = self._load_related_models(self.tws, self.weapon_slot_manager, template_id)
 
+        sets_str = data.pop("sets")
+        sets_frozen = frozenset(sets_str.split(",")) if sets_str else frozenset()
+
         data["parts"] = parts
         data["possible_weapons"] = possible_weapons
+        data["sets"] = sets_frozen
 
         return TemplateMinifigure(**data)
     
