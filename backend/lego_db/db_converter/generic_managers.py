@@ -1,16 +1,26 @@
-from backend.lego_db.lego_models import LegoPart, TemplateMinifigure, ActualMinifigure, Weapon, WeaponSlot
+from backend.lego_db.lego_models import LegoPart, TemplateMinifigure, ActualMinifigure, Weapon, WeaponSlot, BasicModel
 from backend.sql_api import Table, Record, Element
 from backend.lego_db.db_converter.registry import RELATIONS
 from backend.sql_api import DataBaseWrapper
+from dataclasses import fields
 
 # Klasse für Models ohne Child oder mit einer 1:1 Beziehung
 class BaseRepoManager:
     table: Table
-
+    model_cls: type[BasicModel]
     joint_tables: list[Table]
 
     def __init__(self, db: DataBaseWrapper):
         self.db = db
+
+    def create_model(self, data: dict[str, str]) -> LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot:
+        creation_field_names = [f.name for f in self.model_cls.creation_fields()]
+        optional_field_names = [f.name for f in fields(self.model_cls) if f.name not in creation_field_names]
+
+        init_kwargs = {k: v for k, v in data.items() if k in creation_field_names}
+        init_kwargs.update({k: data[k] for k in optional_field_names if k in data})
+        model = self.model_cls(**init_kwargs)
+        return model
 
     # --- Write Models ---
     # Spaltet das Model in mehrere Reports welche dann in die Tabellen geschrieben werden

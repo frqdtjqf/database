@@ -7,7 +7,7 @@ from backend.lego_db.db_converter.generic_managers import ParentRepoManager, Bas
 # basic Managers with max. 1:1 relations that dont require an extra Table
 class LegoPartRepoManager(BaseRepoManager):
     table = LEGO_PART_TABLE
-    
+    model_cls = LegoPart
     joint_tables = []
 
     def _model_from_record(self, record: Record) -> LegoPart:
@@ -17,7 +17,7 @@ class LegoPartRepoManager(BaseRepoManager):
     
 class ActualMinifigureRepoManager(BaseRepoManager):
     table = ACTUAL_MINIFIGURE_TABLE
-    
+    model_cls = ActualMinifigure
     joint_tables = []
 
     def __init__(self, db):
@@ -56,7 +56,7 @@ class ActualMinifigureRepoManager(BaseRepoManager):
 class WeaponSlotRepoManager(ParentRepoManager):
     # needed constants
     table = WEAPON_SLOT_TABLE
-
+    model_cls = WeaponSlot
     wsw = WEAPON_SLOT_WEAPONS_JOINT
     joint_tables = [WEAPON_SLOT_WEAPON_TABLE]
 
@@ -76,7 +76,7 @@ class WeaponSlotRepoManager(ParentRepoManager):
 class TemplateMinifigureRepoManager(ParentRepoManager):
     # needed constants
     table = TEMPLATE_MINIFIGURE_TABLE
-
+    model_cls = TemplateMinifigure
     tp = TEMPLATE_PARTS_JOINT
     tws = TEMPLATE_WEAPON_SLOTS_JOINT
     joint_tables = [TEMPLATE_MINIFIGURE_PART_TABLE, TEMPLATE_MINIFIGURE_WEAPON_SLOT_TABLE]
@@ -122,7 +122,7 @@ class TemplateMinifigureRepoManager(ParentRepoManager):
 class WeaponRepoManager(ParentRepoManager):
     # needed constants
     table = WEAPON_TABLE
-
+    model_cls = Weapon
     wp = WEAPON_PARTS_JOINT
     joint_tables = [WEAPON_PART_TABLE]
 

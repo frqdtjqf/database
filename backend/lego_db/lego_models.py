@@ -1,7 +1,7 @@
 """
 Dataclasses for Lego models."""
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields, Field
 import hashlib
 
 UNDEFINED = object()
@@ -22,18 +22,18 @@ class BasicModel:
         """gibt einzigartigen string zurück, aus welchem dann die id erstellt wird"""
         raise NotImplementedError("id_source missing implementation")
     
-    def get_column_row_data(self) -> tuple[list[str], dict[str, str]]:
-        """definiert die Spalten und deren Inhalt eines Elements"""
-        columns = ["ID"]
-        rows = {columns[0]: self.id}
-        return columns, rows
-
+    @classmethod
+    def creation_fields(cls) -> list[Field]:
+        return [
+            f for f in fields(cls)
+            if f.metadata.get("id_field", False)
+        ]
 
 # Lego Teil
 @dataclass(frozen=True)
 class LegoPart(BasicModel):
-    bricklink_part_id: str
-    bricklink_color_id: str
+    bricklink_part_id: str = field(metadata={"id_field": True})
+    bricklink_color_id: str = field(metadata={"id_field": True})
 
     lego_element_id: str | None = ""
     lego_design_id: str | None = ""
@@ -46,12 +46,12 @@ class LegoPart(BasicModel):
 # Waffentypen für Minifiguren
 @dataclass(frozen=True)
 class Weapon(BasicModel):
-    name: str
-    parts: frozenset[LegoPart] = frozenset()
+    name: str = field(metadata={"id_field": True})
+    parts: frozenset[LegoPart] = field(metadata={"id_field": True})
     description: str = ""
 
     def id_source(self) -> str:
-        base = self.name
+        base = "b"
         part_ids = sorted(part.id for part in self.parts)
         for pid in part_ids:
             base += f"_{pid}"
@@ -60,7 +60,7 @@ class Weapon(BasicModel):
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
 class WeaponSlot(BasicModel):
-    weapons: frozenset[Weapon] = frozenset()
+    weapons: frozenset[Weapon] = field(metadata={"id_field": True})
 
     def id_source(self) -> str:
         if not self.weapons:
@@ -72,7 +72,7 @@ class WeaponSlot(BasicModel):
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
 class TemplateMinifigure(BasicModel):
-    bricklink_fig_id: str
+    bricklink_fig_id: str = field(metadata={"id_field": True})
     name: str
     year: int
     sets: frozenset[str]
@@ -89,8 +89,8 @@ class TemplateMinifigure(BasicModel):
 class ActualMinifigure(BasicModel):
     template: TemplateMinifigure
 
-    box_number: int
-    position_in_box: int
+    box_number: int = field(metadata={"id_field": True})
+    position_in_box: int = field(metadata={"id_field": True})
 
     weapon_slot: WeaponSlot | None = WeaponSlot(frozenset())
     condition: str = ""
@@ -110,5 +110,5 @@ class ActualMinifigure(BasicModel):
         return True
 
     def id_source(self) -> str:
-        base = f"{self.template.id}_{self.box_number}_{self.position_in_box}"
+        base = f"{self.box_number}_{self.position_in_box}"
         return base

@@ -65,6 +65,11 @@ db_inter.add_template(knight_template)
 db_inter.add_actual_minifigure(actual_knight1)
 db_inter.add_actual_minifigure(actual_knight2)
 
+web_manager = LegoPartWebManager(db)
+form_data = {"bricklink_part_id": "3001gayogay", "bricklink_color_id": "5", "description": "red brick"}
+new_model = web_manager.repo_mng.create_model(form_data)
+web_manager.repo_mng.add_model(new_model)
+
 @app.route("/")
 def index():
     return render_template("base.html")
@@ -96,7 +101,6 @@ def render_template_minifigures():
 def render_actual_minifigures():
     mng = ActualMinifigureWebManager(db)
     return render_generic(web_mng=mng)
-
 
 # --- Helper ---
 def render_generic(web_mng: BaseWebManager):

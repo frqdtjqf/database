@@ -20,7 +20,7 @@
 </table>
 
 <h3>Add New {{ title[:-1] }}</h3>
-<form method="POST" action="{{ add_url }}">
+<form method="POST" action="{{ url_for('add_model', model_name=model_name) }}">
     {% for column in columns if column != "ID" %}
     <label>{{ column }}: 
         <input type="text" name="{{ column }}">
