@@ -13,6 +13,7 @@
         {% for column in columns %}
           <th>{{ column.replace("_", " ").title() }}</th>
         {% endfor %}
+        <th>Actions</th>
       </tr>
     </thead>
 
@@ -22,6 +23,16 @@
         {% for column in columns %}
           <td>{{ row[column] if row[column] is not none else "-" }}</td>
         {% endfor %}
+
+        <td class="actions">
+            <form method="POST"
+                    action="{{ url_for('delete', entity=entity, id=row[columns[0]]) }}"
+                    onsubmit="return confirm('Confirm Deletion');">
+                <button type="submit" class="btn-delete">🗑</button>
+
+            </form>
+
+        </td>
       </tr>
       {% endfor %}
     </tbody>

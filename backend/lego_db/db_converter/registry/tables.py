@@ -29,8 +29,8 @@ TEMPLATE_MINIFIGURE_ATTRIBUTES = [
 
 ACTUAL_MINIFIGURE_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
-    Attribute(name=TEMPLATE_NAME, type="TEXT", foreign_key=("template_minifigure", PRIMARY_KEY_NAME)),
-    Attribute(name=WEAPON_SLOT_NAME, type="TEXT", foreign_key=("weapon_slot", PRIMARY_KEY_NAME)),
+    Attribute(name=TEMPLATE_NAME, type="TEXT", foreign_key=("template_minifigures", PRIMARY_KEY_NAME)),
+    Attribute(name=WEAPON_SLOT_NAME, type="TEXT", foreign_key=("weapon_slots", PRIMARY_KEY_NAME)),
     Attribute(name="box_number", type="TEXT"),
     Attribute(name="position_in_box", type="TEXT"),
     Attribute(name="condition", type="TEXT")
@@ -51,27 +51,32 @@ from backend.sql_api import Table
 
 LEGO_PART_TABLE = Table(
     name="lego_parts",
-    attributes=LEGO_PART_ATTRIBUTES
+    attributes=LEGO_PART_ATTRIBUTES,
+    is_joint=False
 )
 
 TEMPLATE_MINIFIGURE_TABLE = Table(
     name="template_minifigures",
-    attributes=TEMPLATE_MINIFIGURE_ATTRIBUTES
+    attributes=TEMPLATE_MINIFIGURE_ATTRIBUTES,
+    is_joint=False
 )
 
 ACTUAL_MINIFIGURE_TABLE = Table(
     name="actual_minifigures",
-    attributes=ACTUAL_MINIFIGURE_ATTRIBUTES
+    attributes=ACTUAL_MINIFIGURE_ATTRIBUTES,
+    is_joint=False
 )
 
 WEAPON_TABLE = Table(
     name="weapons",
-    attributes=WEAPON_ATTRIBUTES
+    attributes=WEAPON_ATTRIBUTES,
+    is_joint=False
 )
 
 WEAPON_SLOT_TABLE = Table(
     name="weapon_slots",
-    attributes=WEAPON_SLOT_ATTRIBUTES
+    attributes=WEAPON_SLOT_ATTRIBUTES,
+    is_joint=False
 )
 
 TABLES_ALL = [

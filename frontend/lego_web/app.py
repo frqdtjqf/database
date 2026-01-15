@@ -100,6 +100,20 @@ def add_form(entity):
     # GET: Formular rendern
     return render_template("add_form.html", model_fields=model_fields, entity=entity)
 
+@app.post("/<entity>/delete")
+def delete(entity):
+    id_values = request.args.to_dict()
+    obj_id = id_values["id"]
+    manager_class = WEB_MANAGERS[entity]
+
+    web_manager: BaseWebManager = manager_class(db)
+    repo_manager = web_manager.repo_mng
+
+    obj = repo_manager.get_model_by_primary_key(obj_id)
+    repo_manager.delete_model(obj)
+
+    return redirect(url_for(ENTITY_ROUTES[entity]))
+
 # --- Helper ---
 def render_generic(web_mng: BaseWebManager):
     web_table = web_mng.get_web_table()

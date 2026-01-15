@@ -7,8 +7,13 @@ class DataBaseWrapper:
 
     def __init__(self, db_name: str = DB_NAME):
         self.db_name = f"./data/{db_name}"
+        self._connect()
 
-    def create_table(self, table: Table):
+    def create_relations_table(self, relation: dict):
+        joint_table = relation["joint_table"]
+        self.create_table(joint_table, relation["parent_column"])
+
+    def create_table(self, table: Table, parent_name: str = None):
         if not table.attributes:
             raise ValueError("Table must have at least one attribute")
 
@@ -20,8 +25,12 @@ class DataBaseWrapper:
             columns.append(col_def)
 
             if attr.foreign_key:
+                if attr.name == parent_name and parent_name is not None:
+                    fk_action = "ON DELETE CASCADE"
+                else:
+                    fk_action = "ON DELETE RESTRICT"
                 ref_table, ref_column = attr.foreign_key
-                foreign_keys.append(f"FOREIGN KEY({attr.name}) REFERENCES {ref_table}({ref_column})")
+                foreign_keys.append(f"FOREIGN KEY({attr.name}) REFERENCES {ref_table}({ref_column}) {fk_action}")
 
         pk_attrs = [attr.name for attr in table.attributes if attr.primary_key]
         if pk_attrs:
@@ -42,17 +51,20 @@ class DataBaseWrapper:
             db.execute("PRAGMA foreign_keys = ON;")
             db.commit()
 
-    def insert_record(self,table: Table, record: Record):
+    def insert_record(self, table: Table, record: Record):
         columns = [e.attribute.name for e in record.elements]
         params = {e.attribute.name: e.value for e in record.elements}
 
         columns_sql = ", ".join(columns)
         placeholders_sql = ", ".join([f":{c}" for c in columns])
+        print(table.name)
         sql = f"INSERT OR IGNORE INTO {table.name} ({columns_sql}) VALUES ({placeholders_sql})"
+        print(sql)
 
         with self._connect() as db:
             db.execute(sql, params)
             db.commit()
+        print("c")
 
     def delete_record(self, table: Table, record: Record):
         pk_element = record.get_primary_key_element()

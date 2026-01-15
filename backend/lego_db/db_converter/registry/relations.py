@@ -12,7 +12,8 @@ TEMPLATE_MINIFIGURE_PART_TABLE = Table(
     attributes=[
         Attribute(name=TEMPLATE_NAME, type="TEXT", primary_key=True, foreign_key=(TEMPLATE_MINIFIGURE_TABLE.name, PRIMARY_KEY_NAME)),
         Attribute(name=PART_NAME, type="TEXT", primary_key=True, foreign_key=(LEGO_PART_TABLE.name, PRIMARY_KEY_NAME))
-    ]
+    ],
+    is_joint=True
 )
 
 # Template -> Weapon Slot
@@ -21,7 +22,8 @@ TEMPLATE_MINIFIGURE_WEAPON_SLOT_TABLE = Table(
     attributes=[
         Attribute(name=TEMPLATE_NAME, type="TEXT", primary_key=True, foreign_key=(TEMPLATE_MINIFIGURE_TABLE.name, PRIMARY_KEY_NAME)),
         Attribute(name=WEAPON_SLOT_NAME, type="TEXT", primary_key=True, foreign_key=(WEAPON_SLOT_TABLE.name, PRIMARY_KEY_NAME))
-    ]
+    ],
+    is_joint=True
 )
 
 # Weapon Slot -> Weapon
@@ -30,16 +32,18 @@ WEAPON_SLOT_WEAPON_TABLE = Table(
     attributes=[
         Attribute(name=WEAPON_SLOT_NAME, type="TEXT", primary_key=True, foreign_key=(WEAPON_SLOT_TABLE.name, PRIMARY_KEY_NAME)),
         Attribute(name=WEAPON_NAME, type="TEXT", primary_key=True, foreign_key=(WEAPON_TABLE.name, PRIMARY_KEY_NAME))
-    ]
+    ],
+    is_joint=True
 )
 
 # Weapon -> Part
 WEAPON_PART_TABLE = Table(
-    name="weapon_part_table",
+    name="weapon_part",
     attributes=[
         Attribute(name=WEAPON_NAME, type="TEXT", primary_key=True, foreign_key=(WEAPON_TABLE.name, PRIMARY_KEY_NAME)),
         Attribute(name=PART_NAME, type="TEXT", primary_key=True, foreign_key=(LEGO_PART_TABLE.name, PRIMARY_KEY_NAME))
-    ]
+    ],
+    is_joint=True
 )
 
 # relation table names

@@ -17,6 +17,7 @@ class BaseRepoManager:
     # Spaltet das Model in mehrere Reports welche dann in die Tabellen geschrieben werden
     def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
         record = self._record_from_model(model)
+        print(record)
         self.db.insert_record(self.table, record)
 
     def delete_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
@@ -36,12 +37,7 @@ class BaseRepoManager:
         self.db.delete_table(self.table)
 
     def create_tables(self):
-        try:
-            self.db.create_table(self.table)
-            for joint_tab in self.joint_tables:
-                self.db.create_table(joint_tab)
-        except Exception as e:
-            print(e)
+        self.db.create_table(self.table)
 
     # --- Helpers ---
     def get_model_by_primary_key(self, pk_value: str) -> LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot | None:

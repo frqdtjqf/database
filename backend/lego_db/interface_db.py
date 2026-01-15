@@ -1,6 +1,7 @@
 from backend.sql_api import DataBaseWrapper
 from backend.lego_db.db_converter import WeaponRepoManager, WeaponSlotRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, ActualMinifigureRepoManager
 from backend.lego_db.lego_models import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
+from backend.lego_db.db_converter.registry.relations import RELATIONS
 from dataclasses import dataclass
 
 @dataclass
@@ -26,6 +27,8 @@ class LegoDBInterface:
     
     # --- GENERAL ---
     def create_all_tables(self):
+        for relation in RELATIONS.values():
+            self.db.create_relations_table(relation)
         self.super_mgn.weapon_mgn.create_tables()
         self.super_mgn.weapon_slot_mgn.create_tables()
         self.super_mgn.temp_min_mgn.create_tables()

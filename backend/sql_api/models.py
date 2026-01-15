@@ -13,6 +13,7 @@ class Attribute:
 class Table:
     name: str
     attributes: list[Attribute]
+    is_joint: bool
 
     def get_attribute_by_name(self, attribute_name: str) -> Attribute:
         attr = next(attr for attr in self.attributes if attr.name == attribute_name)
