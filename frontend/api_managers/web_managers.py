@@ -44,10 +44,10 @@ class WeaponWebManager(BaseWebManager):
 
     def get_rows(self) -> list[dict[str, str]]:
         rows = []
-        models = self.repo_mng.get_models()
+        models : list[Weapon] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
-            parts_str = ", ".join(part.id for part in m.parts)
+            parts_str = ", ".join(f"{part.id} x {q}" for part, q in m.parts.items())
             row = {
                 c[0]: m.id,
                 c[1]: m.name,
@@ -73,10 +73,10 @@ class WeaponSlotWebManager(BaseWebManager):
 
     def get_rows(self) -> list[dict[str, str]]:
         rows = []
-        models = self.repo_mng.get_models()
+        models : list[WeaponSlot] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
-            weapons_str = ", ".join(weapon.id for weapon in m.weapons)
+            weapons_str = ", ".join(f"{weapon.id} x {q}" for weapon, q in m.weapons.items())
             row = {
                 c[0]: m.id,
                 c[1]: weapons_str
@@ -101,11 +101,11 @@ class TemplateMinifigureWebManager(BaseWebManager):
 
     def get_rows(self) -> list[dict[str, str]]:
         rows = []
-        models = self.repo_mng.get_models()
+        models : list[TemplateMinifigure] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
             sets_str = ", ".join(set_id for set_id in m.sets)
-            parts_str = ", ".join(part.id for part in m.parts)
+            parts_str = ", ".join(f"{part.id} x {q}" for part, q in m.parts.items())
             posw_str = ", ".join(slot.id for slot in m.possible_weapons)
             row = {
                 c[0]: m.id,
