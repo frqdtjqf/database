@@ -1,21 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h2>{{ title }}</h2>
-<a href="{{ url_for('add_form', entity=entity) }}">Add</a>
-<table border="1">
-    <tr>
-        {% for column in columns %}
-        <th>{{ column }}</th>
-        {% endfor %}
-    </tr>
+<div class="table-container">
+  <div class="table-header">
+    <h2>{{ title }}</h2>
+    <a class="add-btn" href="{{ url_for('add_form', entity=entity) }}">+ Add</a>
+  </div>
 
-    {% for row in rows %}
-    <tr>
+  <table class="modern-table">
+    <thead>
+      <tr>
         {% for column in columns %}
-        <td>{{ row[column] if row[column] is not none else "" }}</td>
+          <th>{{ column.replace("_", " ").title() }}</th>
         {% endfor %}
-    </tr>
-    {% endfor %}
-</table>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        {% for column in columns %}
+          <td>{{ row[column] if row[column] is not none else "-" }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

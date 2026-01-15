@@ -1,19 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Lego Database</title>
+    <meta charset="UTF-8">
+    <title>Lego DB</title>
+
+    <!-- Hier binden wir die externe CSS-Datei ein -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Lego Database</h1>
+
+<header>
     <nav>
-        <a href="/">Home</a> |
-        <a href="/lego_parts">Lego Parts</a>
-        <a href="/weapons">Weapons</a>
-        <a href="/weapon_slots">Weapon Slots</a>
-        <a href="/template_minifigures">Minifigure Templates</a>
-        <a href="/actual_minifigures">Actual Minifigures</a>
+        <a href="{{ url_for('home') }}">Home</a>
     </nav>
-    <hr>
+</header>
+
+<main>
     {% block content %}{% endblock %}
+</main>
+
+<footer>
+    <small>&copy; 2026 Lego Database</small>
+</footer>
+
 </body>
 </html>

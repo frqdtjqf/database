@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="home-title">Lego Database</h1>
+<div class="entity-grid">
+    {% for key, label in entity_routes.items() %}
+        <a href="{{ url_for(label) }}" class="entity-card">{{ entity_names[key] }}</a>
+    {% endfor %}
+</div>
+{% endblock %}

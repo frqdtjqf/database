@@ -22,14 +22,23 @@ ENTITY_ROUTES = {
     "actual_minifigures": "render_actual_minifigures",
 }
 
+ENTITY_NAMES = {
+    "lego_parts": "Lego Parts",
+    "weapons": "Weapons",
+    "weapon_slots": "Weapon Slots",
+    "template_minifigures": "Template Minifigures",
+    "actual_minifigures": "Actual Minifigures"
+}
+
+
 db_inter = LegoDBInterface(db)
 db_inter.create_all_tables()
 
 app = Flask(__name__)
 
 @app.route("/")
-def index():
-    return render_template("base.html")
+def home():
+    return render_template("home.html", entity_names=ENTITY_NAMES, entity_routes=ENTITY_ROUTES)
 
 @app.route("/lego_parts")
 def render_lego_parts():

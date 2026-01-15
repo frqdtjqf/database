@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+
+{% block content %}
 <h2 class="form-title">Add {{ entity.replace("_", " ").title() }}</h2>
 
 <form class="add-form" method="POST" action="{{ url_for('add_form', entity=entity) }}">
@@ -40,83 +43,6 @@
   <button type="submit" class="submit-btn">Add</button>
 </form>
 
-<style>
-  .form-title {
-    margin-bottom: 1rem;
-  }
-
-  .add-form {
-    max-width: 500px;
-    padding: 1.5rem;
-    border-radius: 8px;
-    background: #fafafa;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  }
-
-  .form-group {
-    margin-bottom: 1.25rem;
-  }
-
-  label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-  }
-
-  input[type="text"] {
-    width: 100%;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 0.95rem;
-  }
-
-  input[type="text"]:focus {
-    outline: none;
-    border-color: #4a90e2;
-  }
-
-  .set-field input {
-    margin-bottom: 0.4rem;
-  }
-
-  .add-set-btn {
-    margin-top: 0.3rem;
-    background: none;
-    border: none;
-    color: #4a90e2;
-    font-size: 0.85rem;
-    cursor: pointer;
-    padding: 0;
-  }
-
-  .add-set-btn:hover {
-    text-decoration: underline;
-  }
-
-  .hint {
-    display: block;
-    font-size: 0.8rem;
-    color: #666;
-    margin-top: 0.2rem;
-  }
-
-  .submit-btn {
-    margin-top: 1.2rem;
-    padding: 0.6rem 1.2rem;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.95rem;
-    cursor: pointer;
-  }
-
-  .submit-btn:hover {
-    background-color: #3b7dc4;
-  }
-</style>
-
 <script>
 function addSetField(button) {
   const name = button.dataset.name;
@@ -131,3 +57,4 @@ function addSetField(button) {
   container.appendChild(input);
 }
 </script>
+{% endblock %}
