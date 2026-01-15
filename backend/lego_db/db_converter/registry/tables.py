@@ -50,27 +50,27 @@ WEAPON_SLOT_ATTRIBUTES = [
 from backend.sql_api import Table
 
 LEGO_PART_TABLE = Table(
-    name="lego_part",
+    name="lego_parts",
     attributes=LEGO_PART_ATTRIBUTES
 )
 
 TEMPLATE_MINIFIGURE_TABLE = Table(
-    name="template_minifigure",
+    name="template_minifigures",
     attributes=TEMPLATE_MINIFIGURE_ATTRIBUTES
 )
 
 ACTUAL_MINIFIGURE_TABLE = Table(
-    name="actual_minifigure",
+    name="actual_minifigures",
     attributes=ACTUAL_MINIFIGURE_ATTRIBUTES
 )
 
 WEAPON_TABLE = Table(
-    name="weapon",
+    name="weapons",
     attributes=WEAPON_ATTRIBUTES
 )
 
 WEAPON_SLOT_TABLE = Table(
-    name="weapon_slot",
+    name="weapon_slots",
     attributes=WEAPON_SLOT_ATTRIBUTES
 )
 

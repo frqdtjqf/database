@@ -1,0 +1,9 @@
+<h2>Add {{ entity.replace("_", " ").title() }}</h2>
+<form method="POST" action="{{ url_for('add_form', entity=entity) }}">
+  {% for f in model_fields if f.name != "id" %}
+    <label for="{{ f.name }}">{{ f.name }}</label>
+    <input type="text" id="{{ f.name }}" name="{{ f.name }}">
+    <br>
+  {% endfor %}
+  <button type="submit">Add</button>
+</form>

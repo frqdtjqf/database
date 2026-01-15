@@ -13,15 +13,6 @@ class BaseRepoManager:
     def __init__(self, db: DataBaseWrapper):
         self.db = db
 
-    def create_model(self, data: dict[str, str]) -> LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot:
-        creation_field_names = [f.name for f in self.model_cls.creation_fields()]
-        optional_field_names = [f.name for f in fields(self.model_cls) if f.name not in creation_field_names]
-
-        init_kwargs = {k: v for k, v in data.items() if k in creation_field_names}
-        init_kwargs.update({k: data[k] for k in optional_field_names if k in data})
-        model = self.model_cls(**init_kwargs)
-        return model
-
     # --- Write Models ---
     # Spaltet das Model in mehrere Reports welche dann in die Tabellen geschrieben werden
     def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):

@@ -11,6 +11,20 @@ class BasicModel:
     id: str = field(init=False)
 
     def __post_init__(self):
+        missing = []
+        for f in self.creation_fields():
+            value = getattr(self, f.name, None)
+
+            if isinstance(value, str):
+                trimmed = value.strip()
+                if trimmed != value:
+                    object.__setattr__(self, f.name, trimmed)
+
+            if value is None or (isinstance(value, str) and value.strip() == ""):
+                missing.append(f.name)
+        if missing:
+            raise ValueError(f"Missing required creation fields: {missing}")
+        
         object.__setattr__(self, "id", self.compute_id())
 
     def compute_id(self) -> str:
@@ -47,7 +61,7 @@ class LegoPart(BasicModel):
 @dataclass(frozen=True)
 class Weapon(BasicModel):
     name: str = field(metadata={"id_field": True})
-    parts: frozenset[LegoPart] = field(metadata={"id_field": True})
+    parts: frozenset[LegoPart] = field(metadata={"id_field": True, "related_field": True})
     description: str = ""
 
     def id_source(self) -> str:
@@ -75,10 +89,10 @@ class TemplateMinifigure(BasicModel):
     bricklink_fig_id: str = field(metadata={"id_field": True})
     name: str
     year: int
-    sets: frozenset[str]
+    sets: frozenset[str] = field(default_factory=frozenset, metadata={"related_field": True})
 
-    parts: frozenset[LegoPart] = frozenset()
-    possible_weapons: frozenset[WeaponSlot] = frozenset()
+    parts: frozenset[LegoPart] = field(default_factory=frozenset, metadata={"related_field": True})
+    possible_weapons: frozenset[WeaponSlot] = field(default_factory=frozenset, metadata={"related_field": True})
     description: str = ""
 
     def id_source(self) -> str:
@@ -87,12 +101,12 @@ class TemplateMinifigure(BasicModel):
 # eine reale Lego Minifigur im Bestand
 @dataclass(frozen=True)
 class ActualMinifigure(BasicModel):
-    template: TemplateMinifigure
+    template: TemplateMinifigure = field(metadata={"related_field": True})
 
     box_number: int = field(metadata={"id_field": True})
     position_in_box: int = field(metadata={"id_field": True})
 
-    weapon_slot: WeaponSlot | None = WeaponSlot(frozenset())
+    weapon_slot: WeaponSlot = field(default_factory=lambda: WeaponSlot(frozenset()), metadata={"related_field": True})
     condition: str = ""
 
     def __post_init__(self):
