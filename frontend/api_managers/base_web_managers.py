@@ -9,6 +9,7 @@ class BaseWebManager:
     rows: dict[str, str]
     t_name: str
     entity: str
+    repos: dict[str, BaseRepoManager]
 
     def __init__(self, db: DataBaseWrapper):
         self.repo_mng = BaseRepoManager(db)
@@ -27,8 +28,49 @@ class BaseWebManager:
             rows=self.get_rows()
         )
     
-    def create_model(self, data: dict[str, str]):
-        raise NotImplementedError("create_model not implemented")
+    def create_model(self, data: dict):
+        kwargs = {}
+
+        for f in fields(self.repo_mng.model_cls):
+            name = f.name
+            meta = f.metadata
+
+            if meta.get("super_id"):
+                continue
+
+            # ----------   SET  ----------
+            if meta.get("set"):
+                # multi values
+                values = data.get(name, []) if isinstance(data[name], list) else [data.get(name, [])]
+                values = [v for v in values if v != ""]
+                # ---------- NESTED ----------
+                if meta.get("related_field"):
+                    repo = self.repos[meta["repo"]]
+                    raw = frozenset(repo.get_model_by_primary_key(v) for v in values)
+                else:
+                    raw = frozenset(values)
+            # ---------- NESTED ----------
+            elif meta.get("related_field"):
+                # single nested
+                value = data.get(name)[0]
+                if not value:
+                    raw = None
+                else:
+                    repo = self.repos[meta["repo"]]
+                    raw = repo.get_model_by_primary_key(value)
+            # ---------- FLAT ----------
+            else:
+                # flat
+                raw = data.get(name)[0]
+                if raw == "":
+                    raw = None
+                if meta.get("id_field") and not raw:
+                    raise ValueError(f"{name} missing")
+
+            kwargs[name] = raw
+
+        return self.repo_mng.model_cls(**kwargs)
+
 
 
 

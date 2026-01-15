@@ -1,9 +1,39 @@
 <h2>Add {{ entity.replace("_", " ").title() }}</h2>
 <form method="POST" action="{{ url_for('add_form', entity=entity) }}">
   {% for f in model_fields if f.name != "id" %}
-    <label for="{{ f.name }}">{{ f.name }}</label>
-    <input type="text" id="{{ f.name }}" name="{{ f.name }}">
+
+    <label>{{ f.name }}</label>
+
+    {% if f.metadata.get("set") %}
+      <div class="set-field" data-name="{{ f.name }}">
+        <input type="text" name="{{ f.name }}" oninput="addSetField(this)">
+      </div>
+    {% else %}
+      <input type="text" name="{{ f.name }}">
+    {% endif %}
+
     <br>
+
   {% endfor %}
+
   <button type="submit">Add</button>
 </form>
+
+<script>
+function addSetField(input) {
+  const container = input.parentElement;
+  const name = input.name;
+
+  const inputs = container.querySelectorAll('input');
+  if (input !== inputs[inputs.length - 1]) return;
+
+  if (input.value.trim() === "") return;
+
+  const newInput = document.createElement("input");
+  newInput.type = "text";
+  newInput.name = name;
+  newInput.oninput = () => addSetField(newInput);
+
+  container.appendChild(newInput);
+}
+</script>

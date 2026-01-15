@@ -8,7 +8,7 @@ UNDEFINED = object()
 
 @dataclass(frozen=True)
 class BasicModel:
-    id: str = field(init=False)
+    id: str = field(init=False, metadata={"super_id": True})
 
     def __post_init__(self):
         missing = []
@@ -49,8 +49,8 @@ class LegoPart(BasicModel):
     bricklink_part_id: str = field(metadata={"id_field": True})
     bricklink_color_id: str = field(metadata={"id_field": True})
 
-    lego_element_id: str | None = ""
-    lego_design_id: str | None = ""
+    lego_element_id: str = ""
+    lego_design_id: str = ""
 
     description: str = ""
 
@@ -61,7 +61,7 @@ class LegoPart(BasicModel):
 @dataclass(frozen=True)
 class Weapon(BasicModel):
     name: str = field(metadata={"id_field": True})
-    parts: frozenset[LegoPart] = field(metadata={"id_field": True, "related_field": True})
+    parts: frozenset[LegoPart] = field(metadata={"id_field": True, "related_field": True, "repo": "lego_part", "set": True})
     description: str = ""
 
     def id_source(self) -> str:
@@ -74,7 +74,7 @@ class Weapon(BasicModel):
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
 class WeaponSlot(BasicModel):
-    weapons: frozenset[Weapon] = field(metadata={"id_field": True})
+    weapons: frozenset[Weapon] = field(metadata={"id_field": True, "related_field": True, "repo": "weapon", "set": True})
 
     def id_source(self) -> str:
         if not self.weapons:
@@ -88,11 +88,11 @@ class WeaponSlot(BasicModel):
 class TemplateMinifigure(BasicModel):
     bricklink_fig_id: str = field(metadata={"id_field": True})
     name: str
-    year: int
-    sets: frozenset[str] = field(default_factory=frozenset, metadata={"related_field": True})
+    year: str
+    sets: frozenset[str] = field(default_factory=frozenset, metadata={"set": True})
 
-    parts: frozenset[LegoPart] = field(default_factory=frozenset, metadata={"related_field": True})
-    possible_weapons: frozenset[WeaponSlot] = field(default_factory=frozenset, metadata={"related_field": True})
+    parts: frozenset[LegoPart] = field(default_factory=frozenset, metadata={"related_field": True, "repo": "lego_part", "set": True})
+    possible_weapons: frozenset[WeaponSlot] = field(default_factory=frozenset, metadata={"related_field": True, "repo": "weapon_slot", "set": True})
     description: str = ""
 
     def id_source(self) -> str:
@@ -101,12 +101,12 @@ class TemplateMinifigure(BasicModel):
 # eine reale Lego Minifigur im Bestand
 @dataclass(frozen=True)
 class ActualMinifigure(BasicModel):
-    template: TemplateMinifigure = field(metadata={"related_field": True})
+    template: TemplateMinifigure = field(metadata={"related_field": True, "repo": "template", "set": False})
 
-    box_number: int = field(metadata={"id_field": True})
-    position_in_box: int = field(metadata={"id_field": True})
+    box_number: str = field(metadata={"id_field": True})
+    position_in_box: str = field(metadata={"id_field": True})
 
-    weapon_slot: WeaponSlot = field(default_factory=lambda: WeaponSlot(frozenset()), metadata={"related_field": True})
+    weapon_slot: WeaponSlot = field(default_factory=lambda: WeaponSlot(frozenset()), metadata={"related_field": True, "repo": "weapon_slot", "set": False})
     condition: str = ""
 
     def __post_init__(self):

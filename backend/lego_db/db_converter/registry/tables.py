@@ -22,7 +22,7 @@ TEMPLATE_MINIFIGURE_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
     Attribute(name="bricklink_fig_id", type="TEXT"),
     Attribute(name="name", type="TEXT"),
-    Attribute(name="year", type="INTEGER"),
+    Attribute(name="year", type="TEXT"),
     Attribute(name="sets", type="TEXT"),
     Attribute(name="description", type="TEXT"),
 ]
@@ -31,8 +31,8 @@ ACTUAL_MINIFIGURE_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
     Attribute(name=TEMPLATE_NAME, type="TEXT", foreign_key=("template_minifigure", PRIMARY_KEY_NAME)),
     Attribute(name=WEAPON_SLOT_NAME, type="TEXT", foreign_key=("weapon_slot", PRIMARY_KEY_NAME)),
-    Attribute(name="box_number", type="INTEGER"),
-    Attribute(name="position_in_box", type="INTEGER"),
+    Attribute(name="box_number", type="TEXT"),
+    Attribute(name="position_in_box", type="TEXT"),
     Attribute(name="condition", type="TEXT")
 ]
 

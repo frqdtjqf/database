@@ -1,4 +1,5 @@
 from backend.lego_db.db_converter import ActualMinifigureRepoManager, TemplateMinifigureRepoManager, WeaponRepoManager, WeaponSlotRepoManager, LegoPartRepoManager
+from backend.lego_db import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
 from frontend.api_managers.base_web_managers import BaseWebManager, DataBaseWrapper
 
 class LegoPartWebManager(BaseWebManager):
@@ -9,8 +10,9 @@ class LegoPartWebManager(BaseWebManager):
     def __init__(self, db: DataBaseWrapper):
         self.repo_mng = LegoPartRepoManager(db)
         self.rows = self.get_rows()
+        self.entity = self.repo_mng.table.name
 
-    def get_rows(self) -> dict[str, str]:
+    def get_rows(self) -> list[dict[str, str]]:
         rows = []
         models = self.repo_mng.get_models()
         c = self.columns
@@ -34,8 +36,13 @@ class WeaponWebManager(BaseWebManager):
     def __init__(self, db: DataBaseWrapper):
         self.repo_mng = WeaponRepoManager(db)
         self.rows = self.get_rows()
+        self.entity = self.repo_mng.table.name
 
-    def get_rows(self) -> dict[str, str]:
+        self.repos = {
+            "lego_part": LegoPartRepoManager(db)
+        }
+
+    def get_rows(self) -> list[dict[str, str]]:
         rows = []
         models = self.repo_mng.get_models()
         c = self.columns
@@ -58,8 +65,13 @@ class WeaponSlotWebManager(BaseWebManager):
     def __init__(self, db: DataBaseWrapper):
         self.repo_mng = WeaponSlotRepoManager(db)
         self.rows = self.get_rows()
+        self.entity = self.repo_mng.table.name
 
-    def get_rows(self) -> dict[str, str]:
+        self.repos = {
+            "weapon": WeaponRepoManager(db)
+        }
+
+    def get_rows(self) -> list[dict[str, str]]:
         rows = []
         models = self.repo_mng.get_models()
         c = self.columns
@@ -80,8 +92,14 @@ class TemplateMinifigureWebManager(BaseWebManager):
     def __init__(self, db: DataBaseWrapper):
         self.repo_mng = TemplateMinifigureRepoManager(db)
         self.rows = self.get_rows()
+        self.entity = self.repo_mng.table.name
 
-    def get_rows(self) -> dict[str, str]:
+        self.repos = {
+            "weapon_slot": WeaponSlotRepoManager(db),
+            "lego_part": LegoPartRepoManager(db)
+        }
+
+    def get_rows(self) -> list[dict[str, str]]:
         rows = []
         models = self.repo_mng.get_models()
         c = self.columns
@@ -110,8 +128,14 @@ class ActualMinifigureWebManager(BaseWebManager):
     def __init__(self, db: DataBaseWrapper):
         self.repo_mng = ActualMinifigureRepoManager(db)
         self.rows = self.get_rows()
+        self.entity = self.repo_mng.table.name
 
-    def get_rows(self) -> dict[str, str]:
+        self.repos = {
+            "template": TemplateMinifigureRepoManager(db),
+            "weapon_slot": WeaponSlotRepoManager(db)
+        }
+
+    def get_rows(self) -> list[dict[str, str]]:
         rows = []
         models = self.repo_mng.get_models()
         c = self.columns
