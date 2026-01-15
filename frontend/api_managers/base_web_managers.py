@@ -3,6 +3,7 @@ from backend.lego_db.lego_models import BasicModel
 from backend.sql_api import DataBaseWrapper
 from frontend.api_managers.web_models import WebTable
 from dataclasses import fields
+from typing import Mapping
 
 class BaseWebManager:
     columns: list[str]
@@ -38,17 +39,25 @@ class BaseWebManager:
             if meta.get("super_id"):
                 continue
 
+            raw = None
+
             # ----------   SET  ----------
             if meta.get("set"):
                 # multi values
                 values = data.get(name, []) if isinstance(data[name], list) else [data.get(name, [])]
                 values = [v for v in values if v != ""]
-                # ---------- NESTED ----------
-                if meta.get("related_field"):
-                    repo = self.repos[meta["repo"]]
-                    raw = frozenset(repo.get_model_by_primary_key(v) for v in values)
-                else:
-                    raw = frozenset(values)
+                raw = frozenset(values)
+            # ---------- MAP ----------
+            elif f.metadata.get("map"):
+                # Mapping-Feld: Key+Value → dict
+                keys = data.get(f"{f.name}_key", [])
+                values = data.get(f"{f.name}_value", [])
+                mapping = {}
+                repo = self.repos[meta["repo"]]
+                for k, v in zip(keys, values):
+                    mapping[repo.get_model_by_primary_key(k)] = int(v)
+                raw = mapping
+
             # ---------- NESTED ----------
             elif meta.get("related_field"):
                 # single nested

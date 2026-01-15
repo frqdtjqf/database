@@ -57,15 +57,11 @@ class DataBaseWrapper:
 
         columns_sql = ", ".join(columns)
         placeholders_sql = ", ".join([f":{c}" for c in columns])
-        print(table.name)
         sql = f"INSERT OR IGNORE INTO {table.name} ({columns_sql}) VALUES ({placeholders_sql})"
-        print(sql)
-
         with self._connect() as db:
             db.execute(sql, params)
             db.commit()
-        print("c")
-
+            
     def delete_record(self, table: Table, record: Record):
         pk_element = record.get_primary_key_element()
 

@@ -1,34 +1,13 @@
-from backend.lego_db import LegoDBInterface
+import hashlib
 
-db = LegoDBInterface("database.db").db
+def compute_id(base) -> str:
+    digest = hashlib.sha256(base.encode()).hexdigest()
+    return digest[:16]
 
-from backend.lego_db.db_converter.registry import RELATIONS, LEGO_PART_TABLE, TEMPLATE_MINIFIGURE_TABLE, WEAPON_TABLE, WEAPON_SLOT_TABLE, ACTUAL_MINIFIGURE_TABLE
+base1 = "5c12df59b1eb1691x1"
+base2 = "5c12df59b1eb1691x2"
 
-def print_table(db, table):
-    print(f"\n=== Table: {table.name} ===")
-    records = db.get_records(table)
-    if not records:
-        print("No entries")
-        return
-
-    for r in records:
-        row = {e.attribute.name: e.value for e in r.elements}
-        print(row)
-
-all_tables = [
-    LEGO_PART_TABLE,
-    TEMPLATE_MINIFIGURE_TABLE,
-    WEAPON_TABLE,
-    WEAPON_SLOT_TABLE,
-    ACTUAL_MINIFIGURE_TABLE
-]
-
-# Add joint tables from RELATIONS
-for rel in RELATIONS.values():
-    all_tables.append(rel["joint_table"])
-
-for table in all_tables:
-    print_table(db, table)
-
+print(compute_id(base1))
+print(compute_id(base2))
 
 

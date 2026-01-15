@@ -3,6 +3,8 @@ Dataclasses for Lego models."""
 
 from dataclasses import dataclass, field, fields, Field
 import hashlib
+from typing import Mapping
+
 
 UNDEFINED = object()
 
@@ -61,27 +63,30 @@ class LegoPart(BasicModel):
 @dataclass(frozen=True)
 class Weapon(BasicModel):
     name: str = field(metadata={"id_field": True})
-    parts: frozenset[LegoPart] = field(metadata={"id_field": True, "related_field": True, "repo": "lego_part", "set": True})
+    parts: Mapping[LegoPart, int] = field(default_factory=dict, metadata={"id_field": True, "related_field": True, "repo": "lego_part", "map": True})
     description: str = ""
 
     def id_source(self) -> str:
-        base = "b"
-        part_ids = sorted(part.id for part in self.parts)
-        for pid in part_ids:
-            base += f"_{pid}"
+        base = "w"
+        for part in sorted(self.parts, key=lambda p: p.id):
+            count = self.parts[part]
+            base += f"_{part.id}x{count}"
         return base
 
 # eine Waffenauswahl für Minifiguren
 @dataclass(frozen=True)
 class WeaponSlot(BasicModel):
-    weapons: frozenset[Weapon] = field(metadata={"id_field": True, "related_field": True, "repo": "weapon", "set": True})
+    weapons: Mapping[Weapon, int] = field(default_factory=dict, metadata={"id_field": True, "related_field": True, "repo": "weapon", "map": True})
 
     def id_source(self) -> str:
         if not self.weapons:
             return "empty_slot"
 
-        weapon_ids = sorted(w.id for w in self.weapons)
-        return "slot_" + "_".join(weapon_ids)
+        base = "ws"
+        for weapon in sorted(self.weapons, key=lambda w: w.id):
+            count = self.weapons[weapon]
+            base += f"_{weapon.id}x{count}"
+        return base
 
 # eine Lego Minifigur zusammengesetzt aus verschiedenen Teilen
 @dataclass(frozen=True)
@@ -91,8 +96,8 @@ class TemplateMinifigure(BasicModel):
     year: str
     sets: frozenset[str] = field(default_factory=frozenset, metadata={"set": True})
 
-    parts: frozenset[LegoPart] = field(default_factory=frozenset, metadata={"related_field": True, "repo": "lego_part", "set": True})
-    possible_weapons: frozenset[WeaponSlot] = field(default_factory=frozenset, metadata={"related_field": True, "repo": "weapon_slot", "set": True})
+    parts: Mapping[LegoPart, int] = field(default_factory=dict, metadata={"related_field": True, "repo": "lego_part", "map": True})
+    possible_weapons: Mapping[WeaponSlot, int] = field(default_factory=dict, metadata={"related_field": True, "repo": "weapon_slot", "map": True})
     description: str = ""
 
     def id_source(self) -> str:
@@ -106,7 +111,7 @@ class ActualMinifigure(BasicModel):
     box_number: str = field(metadata={"id_field": True})
     position_in_box: str = field(metadata={"id_field": True})
 
-    weapon_slot: WeaponSlot = field(default_factory=lambda: WeaponSlot(frozenset()), metadata={"related_field": True, "repo": "weapon_slot", "set": False})
+    weapon_slot: WeaponSlot = field(default_factory=lambda: WeaponSlot(), metadata={"related_field": True, "repo": "weapon_slot", "set": False})
     condition: str = ""
 
     def __post_init__(self):

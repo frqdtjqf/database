@@ -29,6 +29,20 @@
 
         <small class="hint">You can add multiple values</small>
 
+      {% elif f.metadata.get("map") %}
+        <div class="map-field" data-name="{{ f.name }}">
+          <div class="map-entry">
+            <input type="text" name="{{ f.name }}_key" placeholder="Enter ID">
+            <input type="number" name="{{ f.name }}_value" value="1" min="1" style="width: 60px;">
+          </div>
+        </div>
+
+        <button type="button" class="add-map-btn" onclick="addMapField(this)" data-name="{{ f.name }}">
+          + Add another
+        </button>
+
+        <small class="hint">Add multiple items with quantity</small>
+
       {% else %}
         <input
           type="text"
@@ -55,6 +69,26 @@ function addSetField(button) {
   input.placeholder = "Add value";
 
   container.appendChild(input);
+}
+
+function addMapField(button) {
+  const name = button.dataset.name;
+  const container = button.previousElementSibling; // map-field
+
+  const entry = document.createElement("div");
+  entry.className = "map-entry";
+
+  // key input kopieren
+  const keyInput = container.querySelector("input[name$='_key']").cloneNode(true);
+  keyInput.value = ""; // leer machen
+  entry.appendChild(keyInput);
+
+  // quantity input kopieren
+  const qtyInput = container.querySelector("input[name$='_value']").cloneNode(true);
+  qtyInput.value = 1;
+  entry.appendChild(qtyInput);
+
+  container.appendChild(entry);
 }
 </script>
 {% endblock %}

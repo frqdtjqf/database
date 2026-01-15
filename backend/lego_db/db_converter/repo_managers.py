@@ -136,9 +136,7 @@ class WeaponRepoManager(ParentRepoManager):
         weapon_id = record.get_primary_key_element().value
 
         # TODO: load parts from WEAPON_PART_TABLE
-        parts = self._load_related_models(self.wp, self.part_manager, weapon_id)
-
-        data["parts"] = parts
+        data["parts"] = self._load_related_models(self.wp, self.part_manager, weapon_id)
 
         data.pop(PRIMARY_KEY_NAME)
         return Weapon(**data)

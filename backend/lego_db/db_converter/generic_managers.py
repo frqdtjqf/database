@@ -1,8 +1,8 @@
 from backend.lego_db.lego_models import LegoPart, TemplateMinifigure, ActualMinifigure, Weapon, WeaponSlot, BasicModel
 from backend.sql_api import Table, Record, Element
-from backend.lego_db.db_converter.registry import RELATIONS
+from backend.lego_db.db_converter.registry import RELATIONS, QUANTITY
 from backend.sql_api import DataBaseWrapper
-from dataclasses import fields
+from typing import Mapping
 
 # Klasse für Models ohne Child oder mit einer 1:1 Beziehung
 class BaseRepoManager:
@@ -16,8 +16,9 @@ class BaseRepoManager:
     # --- Write Models ---
     # Spaltet das Model in mehrere Reports welche dann in die Tabellen geschrieben werden
     def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
+        print("im add")
+        print(model)
         record = self._record_from_model(model)
-        print(record)
         self.db.insert_record(self.table, record)
 
     def delete_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
@@ -71,7 +72,7 @@ class ParentRepoManager(BaseRepoManager):
             relation_name: str,
             child_manager: BaseRepoManager,
             parent_id: str
-    ) -> frozenset:
+    ) -> Mapping[BasicModel, int]:
         """
         Funktion wird vom Parent ausgeführt
         PARAMS:
@@ -89,11 +90,12 @@ class ParentRepoManager(BaseRepoManager):
 
         joint_table_parent_attribute = joint_table.get_attribute_by_name(joint_table_parent_attribute_name)
         joint_table_child_attribute = joint_table.get_attribute_by_name(joint_table_child_attribute_name)
+        child_quantity_attribute = joint_table.get_attribute_by_name(QUANTITY)
 
         # Alle records mit der parent_id in der entsprechenden Spalte
         records = self.db.get_query_records(joint_table, joint_table_parent_attribute, parent_id)
 
-        results = set()
+        results: dict[BasicModel, int] = {}
         
         # jetzt child_ids aus den records sammeln um Objekte zu rekonstruieren
         for r in records:
@@ -108,9 +110,11 @@ class ParentRepoManager(BaseRepoManager):
             if child_model is None:
                 raise ValueError(f"No model found in table '{child_manager.table.name}' with id '{child_id}'")
             
-            results.add(child_model)
+            quantity = r.get_element_by_attribute_name(child_quantity_attribute.name).value
 
-        return frozenset(results)
+            results[child_model] = quantity
+
+        return results
     
     def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
         # 1. haupt record in seine Tabelle einfügen
@@ -125,7 +129,7 @@ class ParentRepoManager(BaseRepoManager):
 
     def _add_relations(
             self, 
-            child_models: frozenset[LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot],
+            child_models: Mapping[LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot, int],
             child_manager: BaseRepoManager,
             relation_name: str,
             parent_id: str
@@ -135,7 +139,7 @@ class ParentRepoManager(BaseRepoManager):
         joint_table_parent_attribute_name: str = relation["parent_column"]
         joint_table_child_attribute_name: str = relation["child_column"]
 
-        for model in child_models:
+        for model, quantity in child_models.items():
             # add child model in its own Table
             child_manager.add_model(model)
 
@@ -149,6 +153,10 @@ class ParentRepoManager(BaseRepoManager):
                     Element(
                         attribute=joint_table.get_attribute_by_name(joint_table_child_attribute_name),
                         value=model.id
+                    ),
+                    Element(
+                        attribute=joint_table.get_attribute_by_name(QUANTITY),
+                        value=quantity
                     )
                 ]
             )
