@@ -67,7 +67,7 @@ class Weapon(BasicModel):
     description: str = ""
 
     def id_source(self) -> str:
-        base = "w"
+        base = self.name
         for part in sorted(self.parts, key=lambda p: p.id):
             count = self.parts[part]
             base += f"_{part.id}x{count}"

@@ -16,8 +16,6 @@ class BaseRepoManager:
     # --- Write Models ---
     # Spaltet das Model in mehrere Reports welche dann in die Tabellen geschrieben werden
     def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
-        print("im add")
-        print(model)
         record = self._record_from_model(model)
         self.db.insert_record(self.table, record)
 
@@ -134,6 +132,7 @@ class ParentRepoManager(BaseRepoManager):
             relation_name: str,
             parent_id: str
     ):
+        # Fügt die Werte in die Joint Tables ein
         relation = RELATIONS[relation_name]
         joint_table: Table = relation["joint_table"]
         joint_table_parent_attribute_name: str = relation["parent_column"]
