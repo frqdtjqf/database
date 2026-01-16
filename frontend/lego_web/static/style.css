@@ -1,4 +1,77 @@
-/* Table Page */
+/* ---------- Base Layout ---------- */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e3e8ee;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.nav-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.logo {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.logo:hover {
+  text-decoration: underline;
+}
+
+.nav-links a {
+  margin-left: 1rem;
+  font-weight: 600;
+  color: #555;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  color: #4a90e2;
+}
+
+/* ---------- Main ---------- */
+
+.app-main {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1.25rem;
+}
+
+/* ---------- Footer ---------- */
+
+.app-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: #777;
+  border-top: 1px solid #e3e8ee;
+  background-color: #fafafa;
+}
+
+/* ---------------- Table Page ------------- */
 
 .table-container {
     max-width: 1000px;
@@ -100,7 +173,7 @@
     }
 }
 
-/* Home Page */
+/* ------------ Home Page ------------- */
 
 .home-title {
   font-size: 2rem;
@@ -136,79 +209,126 @@
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Add Form */
-
-.form-title {
-margin-bottom: 1rem;
-}
+/* ---------- Add Form  ---------- */
 
 .add-form {
-max-width: 500px;
-padding: 1.5rem;
-border-radius: 8px;
-background: #fafafa;
-box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  max-width: 520px;
+  padding: 1.75rem;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.form-title {
+  margin-bottom: 1.2rem;
+  font-size: 1.4rem;
+  color: #333;
 }
 
 .form-group {
-margin-bottom: 1.25rem;
+  margin-bottom: 1.4rem;
 }
 
 label {
-display: block;
-font-weight: 600;
-margin-bottom: 0.4rem;
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.45rem;
+  color: #333;
 }
 
-input[type="text"] {
-width: 100%;
-padding: 0.5rem 0.6rem;
-border: 1px solid #ccc;
-border-radius: 4px;
-font-size: 0.95rem;
+/* Inputs */
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #d1d9e6;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-input[type="text"]:focus {
-outline: none;
-border-color: #4a90e2;
+input[type="text"]:focus,
+input[type="number"]:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.15);
 }
+
+/* Set fields */
 
 .set-field input {
-margin-bottom: 0.4rem;
+  margin-bottom: 0.4rem;
 }
 
-.add-set-btn {
-margin-top: 0.3rem;
-background: none;
-border: none;
-color: #4a90e2;
-font-size: 0.85rem;
-cursor: pointer;
-padding: 0;
+/* Map fields */
+
+.map-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.add-set-btn:hover {
-text-decoration: underline;
+.map-entry {
+  display: flex;
+  gap: 0.5rem;
 }
+
+.map-entry input[type="number"] {
+  width: 80px;
+}
+
+
+.add-inline-btn {
+  margin-top: 0.35rem;
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.add-inline-btn::before {
+  content: "+";
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.add-inline-btn:hover {
+  color: #3b7dc4;
+  text-decoration: underline;
+}
+
+/* Hint text */
 
 .hint {
-display: block;
-font-size: 0.8rem;
-color: #666;
-margin-top: 0.2rem;
+  display: block;
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 0.25rem;
 }
 
+/* Submit button */
+
 .submit-btn {
-margin-top: 1.2rem;
-padding: 0.6rem 1.2rem;
-background-color: #4a90e2;
-color: white;
-border: none;
-border-radius: 4px;
-font-size: 0.95rem;
-cursor: pointer;
+  margin-top: 1.4rem;
+  padding: 0.65rem 1.4rem;
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .submit-btn:hover {
-background-color: #3b7dc4;
+  background-color: #3b7dc4;
+  transform: translateY(-1px);
 }

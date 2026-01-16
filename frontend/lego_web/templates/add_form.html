@@ -18,13 +18,8 @@
           >
         </div>
 
-        <button
-          type="button"
-          class="add-set-btn"
-          onclick="addSetField(this)"
-          data-name="{{ f.name }}"
-        >
-          + Add another
+        <button type="button" class="add-inline-btn" onclick="addSetField(this)" data-name="{{ f.name }}">
+          Add another
         </button>
 
         <small class="hint">You can add multiple values</small>
@@ -37,8 +32,8 @@
           </div>
         </div>
 
-        <button type="button" class="add-map-btn" onclick="addMapField(this)" data-name="{{ f.name }}">
-          + Add another
+        <button type="button" class="add-inline-btn" onclick="addMapField(this)" data-name="{{ f.name }}">
+          Add another
         </button>
 
         <small class="hint">Add multiple items with quantity</small>

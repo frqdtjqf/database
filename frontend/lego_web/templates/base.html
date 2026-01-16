@@ -4,24 +4,35 @@
     <meta charset="UTF-8">
     <title>Lego DB</title>
 
-    <!-- Hier binden wir die externe CSS-Datei ein -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<header>
-    <nav>
-        <a href="{{ url_for('home') }}">Home</a>
-    </nav>
-</header>
+    <header class="app-header">
+    <div class="nav-container">
+        <a class="logo" href="{{ url_for('home') }}">Lego DB</a>
 
-<main>
-    {% block content %}{% endblock %}
-</main>
+        <nav class="nav-links">
+        {% for key, endpoint in entity_routes.items() %}
+            <a href="{{ url_for(endpoint) }}">
+            {{ entity_names[key] }}
+            </a>
+        {% endfor %}
+        </nav>
+    </div>
+    </header>
 
-<footer>
-    <small>&copy; 2026 Lego Database</small>
-</footer>
+
+    <main class="app-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+        <small>&copy; 2026 Lego Database</small>
+    </footer>
 
 </body>
 </html>
+

@@ -36,9 +36,16 @@ db_inter.create_all_tables()
 
 app = Flask(__name__)
 
+@app.context_processor
+def inject_entities():
+    return dict(
+        entity_routes=ENTITY_ROUTES,
+        entity_names=ENTITY_NAMES
+    )
+
 @app.route("/")
 def home():
-    return render_template("home.html", entity_names=ENTITY_NAMES, entity_routes=ENTITY_ROUTES)
+    return render_template("home.html")
 
 @app.route("/lego_parts")
 def render_lego_parts():
