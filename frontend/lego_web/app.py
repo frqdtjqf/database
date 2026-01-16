@@ -104,6 +104,7 @@ def add_form(entity):
         try:
             new_model = web_manager.create_model(form_data)
             repo_manager.add_model(new_model)
+            flash(f"Added {new_model.id}", "success")
             return redirect(url_for(ENTITY_ROUTES[entity]))
         except Exception as e:
             flash(str(e), "error")
@@ -122,7 +123,10 @@ def delete(entity):
 
     obj = repo_manager.get_model_by_primary_key(obj_id)
 
-    repo_manager.delete_model(obj)
+    try:
+        repo_manager.delete_model(obj)
+    except Exception as e:
+        flash(str(e), "error")
 
     return redirect(url_for(ENTITY_ROUTES[entity]))
 
