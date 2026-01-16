@@ -14,16 +14,16 @@ class LegoPartWebManager(BaseWebManager):
 
     def get_rows(self) -> list[dict[str, str]]:
         rows = []
-        models = self.repo_mng.get_models()
+        models: list[LegoPart] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
             row = {
                 c[0]: m.id,
-                c[1]: m.bricklink_part_id,
-                c[2]: m.bricklink_color_id,
-                c[3]: m.lego_element_id,
-                c[4]: m.lego_design_id,
-                c[5]: m.description
+                c[1]: m.bricklink_part_id if m.bricklink_part_id else None,
+                c[2]: m.bricklink_color_id if m.bricklink_color_id else None,
+                c[3]: m.lego_element_id if m.lego_element_id else None,
+                c[4]: m.lego_design_id if m.lego_design_id else None,
+                c[5]: m.description if m.description else None
             }
             rows.append(row)
         return rows
@@ -39,7 +39,7 @@ class WeaponWebManager(BaseWebManager):
         self.entity = self.repo_mng.table.name
 
         self.repos = {
-            "lego_part": LegoPartRepoManager(db)
+            "lego_parts": LegoPartRepoManager(db)
         }
 
     def get_rows(self) -> list[dict[str, str]]:
@@ -47,12 +47,12 @@ class WeaponWebManager(BaseWebManager):
         models : list[Weapon] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
-            parts_str = ", ".join(f"{part.id} x {q}" for part, q in m.parts.items())
+            parts_str = ", ".join(f"{part.id} x {q}" for part, q in m.parts.items() if part is not None)
             row = {
                 c[0]: m.id,
-                c[1]: m.name,
-                c[2]: parts_str,
-                c[3]: m.description,
+                c[1]: m.name if m.name else None,
+                c[2]: parts_str if parts_str else None,
+                c[3]: m.description if m.description else None,
             }
             rows.append(row)
         return rows
@@ -68,7 +68,7 @@ class WeaponSlotWebManager(BaseWebManager):
         self.entity = self.repo_mng.table.name
 
         self.repos = {
-            "weapon": WeaponRepoManager(db)
+            "weapons": WeaponRepoManager(db)
         }
 
     def get_rows(self) -> list[dict[str, str]]:
@@ -76,10 +76,10 @@ class WeaponSlotWebManager(BaseWebManager):
         models : list[WeaponSlot] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
-            weapons_str = ", ".join(f"{weapon.id} x {q}" for weapon, q in m.weapons.items())
+            weapons_str = ", ".join(f"{weapon.id} x {q}" for weapon, q in m.weapons.items() if weapon is not None)
             row = {
                 c[0]: m.id,
-                c[1]: weapons_str
+                c[1]: weapons_str if weapons_str else None
             }
             rows.append(row)
         return rows
@@ -95,8 +95,8 @@ class TemplateMinifigureWebManager(BaseWebManager):
         self.entity = self.repo_mng.table.name
 
         self.repos = {
-            "weapon_slot": WeaponSlotRepoManager(db),
-            "lego_part": LegoPartRepoManager(db)
+            "weapon_slots": WeaponSlotRepoManager(db),
+            "lego_parts": LegoPartRepoManager(db)
         }
 
     def get_rows(self) -> list[dict[str, str]]:
@@ -105,17 +105,17 @@ class TemplateMinifigureWebManager(BaseWebManager):
         c = self.columns
         for m in models:
             sets_str = ", ".join(set_id for set_id in m.sets)
-            parts_str = ", ".join(f"{part.id} x {q}" for part, q in m.parts.items())
+            parts_str = ", ".join(f"{part.id} x {q}" for part, q in m.parts.items() if part is not None)
             posw_str = ", ".join(slot.id for slot in m.possible_weapons)
             row = {
                 c[0]: m.id,
-                c[1]: m.bricklink_fig_id,
-                c[2]: m.name,
-                c[3]: m.year,
-                c[4]: sets_str,
-                c[5]: parts_str,
-                c[6]: posw_str,
-                c[7]: m.description
+                c[1]: m.bricklink_fig_id if m.bricklink_fig_id else None,
+                c[2]: m.name if m.name else None,
+                c[3]: m.year if m.year else None,
+                c[4]: sets_str if sets_str else None,
+                c[5]: parts_str if parts_str else None,
+                c[6]: posw_str if posw_str else None,
+                c[7]: m.description if m.description else None
             }
             rows.append(row)
         return rows
@@ -131,22 +131,22 @@ class ActualMinifigureWebManager(BaseWebManager):
         self.entity = self.repo_mng.table.name
 
         self.repos = {
-            "template": TemplateMinifigureRepoManager(db),
-            "weapon_slot": WeaponSlotRepoManager(db)
+            "template_minifigures": TemplateMinifigureRepoManager(db),
+            "weapon_slots": WeaponSlotRepoManager(db)
         }
 
     def get_rows(self) -> list[dict[str, str]]:
         rows = []
-        models = self.repo_mng.get_models()
+        models : list[ActualMinifigure] = self.repo_mng.get_models()
         c = self.columns
         for m in models:
             row = {
                 c[0]: m.id,
-                c[1]: m.template.id,
-                c[2]: m.box_number,
-                c[3]: m.position_in_box,
-                c[4]: m.weapon_slot.id,
-                c[5]: m.condition,
+                c[1]: m.template.id if m.template else None,
+                c[2]: m.box_number if m.box_number else None,
+                c[3]: m.position_in_box if m.position_in_box else None,
+                c[4]: m.weapon_slot.id if m.weapon_slot else None,
+                c[5]: m.condition if m.condition else None,
             }
             rows.append(row)
         return rows

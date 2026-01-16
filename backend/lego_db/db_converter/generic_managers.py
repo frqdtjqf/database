@@ -13,19 +13,26 @@ class BaseRepoManager:
     def __init__(self, db: DataBaseWrapper):
         self.db = db
 
+    def get_model_ids(self) -> list[str]:
+        mids = []
+        models = self.get_models()
+        for model in models:
+            mids.append(model.id)
+        return mids
+
     # --- Write Models ---
     # Spaltet das Model in mehrere Reports welche dann in die Tabellen geschrieben werden
-    def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
+    def add_model(self, model: BasicModel):
         record = self._record_from_model(model)
         self.db.insert_record(self.table, record)
 
-    def delete_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
+    def delete_model(self, model: BasicModel):
         record = self._record_from_model(model)
         self.db.delete_record(self.table, record)
 
     # --- Read Models ---
     # Sammelt Models für eine Tabelle
-    def get_models(self) -> list[LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot]:
+    def get_models(self) -> list[BasicModel]:
         records = self.db.get_records(self.table)
         return [self._model_from_record(record) for record in records]
 
@@ -39,7 +46,7 @@ class BaseRepoManager:
         self.db.create_table(self.table)
 
     # --- Helpers ---
-    def get_model_by_primary_key(self, pk_value: str) -> LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot | None:
+    def get_model_by_primary_key(self, pk_value: str) -> BasicModel:
         models = self.get_models()
         for model in models:
             record = self._record_from_model(model)
@@ -60,7 +67,7 @@ class BaseRepoManager:
     
     # sammelt Records aus Tabellen, um das Model wieder zu bauen
     # Model from row
-    def _model_from_record(self, record: Record) -> LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot:
+    def _model_from_record(self, record: Record) -> BasicModel:
         raise NotImplementedError
 
 # Klasse für alle Models, welche eine N:M beziehung mit ihren Childs haben
@@ -114,20 +121,20 @@ class ParentRepoManager(BaseRepoManager):
 
         return results
     
-    def add_model(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
+    def add_model(self, model: BasicModel):
         # 1. haupt record in seine Tabelle einfügen
         super().add_model(model)
         # 2. relations hinzufügen
         self._persist_relations(model)
 
-    def _persist_relations(self, model: LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot):
+    def _persist_relations(self, model: BasicModel):
         """Override in subclass as needed"""
         # stellt die Brücke zwische add_model und add_relations
         raise NotImplementedError
 
     def _add_relations(
             self, 
-            child_models: Mapping[LegoPart|TemplateMinifigure|ActualMinifigure|Weapon|WeaponSlot, int],
+            child_models: Mapping[BasicModel, int],
             child_manager: BaseRepoManager,
             relation_name: str,
             parent_id: str

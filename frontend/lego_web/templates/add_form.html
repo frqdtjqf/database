@@ -7,8 +7,9 @@
 
   {% for f in model_fields if f.name != "id" %}
     <div class="form-group">
-      <label for="{{ f.name }}">{{ f.name.replace("_", " ").title() }}</label>
+      <label for="{{ f.name }}" {% if f.metadata.get('id_field') %}class="id-field-label"{% endif %} >{{ f.name.replace("_", " ").title() }}</label>
 
+      {# ein normales set element, Sammlung von Strings, welche kein anderes Objekt referenzieren #}
       {% if f.metadata.get("set") %}
         <div class="set-field" data-name="{{ f.name }}">
           <input
@@ -23,12 +24,30 @@
         </button>
 
         <small class="hint">You can add multiple values</small>
-
+      
+      {# eine map, Sammlung von IDs, welche andere Objekte der Datenbank referenzieren N:M #}
       {% elif f.metadata.get("map") %}
         <div class="map-field" data-name="{{ f.name }}">
           <div class="map-entry">
-            <input type="text" name="{{ f.name }}_key" placeholder="Enter ID">
-            <input type="number" name="{{ f.name }}_value" value="1" min="1" style="width: 60px;">
+            <div
+              class="autocomplete"
+              data-repo="{{ f.metadata.get('repo') }}"
+            >
+              <input
+                type="text"
+                name="{{ f.name }}_key"
+                placeholder="Type to search ID"
+                autocomplete="off"
+              >
+              <div class="autocomplete-list"></div>
+            </div>
+
+            <input
+              type="number"
+              name="{{ f.name }}_value"
+              value="1"
+              min="1"
+            >
           </div>
         </div>
 
@@ -37,6 +56,19 @@
         </button>
 
         <small class="hint">Add multiple items with quantity</small>
+      
+      {# eine einzelne Referenz, eine ID, welche EIN anderes Objekt der Datenbank referenziert (alle related_field welche keine maps sind) N:1 #}
+      {% elif f.metadata.get("related_field") %}
+        <div class="autocomplete"
+            data-repo="{{ f.metadata.get('repo') }}">
+          <input
+            type="text"
+            name="{{ f.name }}"
+            placeholder="Select {{ f.name.replace('_',' ') }}"
+            autocomplete="off"
+          >
+          <div class="autocomplete-list"></div>
+        </div>
 
       {% else %}
         <input
@@ -53,6 +85,7 @@
 </form>
 
 <script>
+
 function addSetField(button) {
   const name = button.dataset.name;
   const formGroup = button.closest(".form-group");
@@ -67,23 +100,80 @@ function addSetField(button) {
 }
 
 function addMapField(button) {
-  const name = button.dataset.name;
-  const container = button.previousElementSibling; // map-field
+  const container = button.previousElementSibling;
+  const template = container.querySelector(".map-entry");
+  const clone = template.cloneNode(true);
 
-  const entry = document.createElement("div");
-  entry.className = "map-entry";
+  clone.querySelector("input[type='text']").value = "";
+  clone.querySelector("input[type='number']").value = 1;
+  clone.querySelector(".autocomplete-list").innerHTML = "";
 
-  // key input kopieren
-  const keyInput = container.querySelector("input[name$='_key']").cloneNode(true);
-  keyInput.value = ""; // leer machen
-  entry.appendChild(keyInput);
-
-  // quantity input kopieren
-  const qtyInput = container.querySelector("input[name$='_value']").cloneNode(true);
-  qtyInput.value = 1;
-  entry.appendChild(qtyInput);
-
-  container.appendChild(entry);
+  container.appendChild(clone);
 }
+
+async function renderAutocomplete(wrapper, query = "") {
+  const input = wrapper.querySelector("input[type='text']");
+  const list = wrapper.querySelector(".autocomplete-list");
+  const repo = wrapper.dataset.repo;
+
+  list.innerHTML = "";
+
+  try {
+    const res = await fetch(`/api/${repo}/ids`);
+    if (!res.ok) throw new Error("Failed to fetch IDs");
+    let values = await res.json();
+
+    // Filter nur, wenn query gesetzt ist
+    if (query) {
+      values = values.filter(v => v.toLowerCase().includes(query.toLowerCase()));
+    }
+
+    values.forEach(value => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-item";
+      item.textContent = value;
+
+      item.onclick = () => {
+        input.value = value;
+        list.style.display = "none";
+      };
+
+      list.appendChild(item);
+    });
+
+    list.style.display = list.children.length ? "block" : "none";
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// Input Event
+document.addEventListener("input", function(e) {
+  const wrapper = e.target.closest(".autocomplete");
+  if (!wrapper) return;
+  renderAutocomplete(wrapper, e.target.value);
+});
+
+// Focus Event
+document.addEventListener("focusin", function(e) {
+  const wrapper = e.target.closest(".autocomplete");
+  if (!wrapper) return;
+
+  // Nur öffnen, wenn Input leer ist
+  if (!e.target.value) {
+    renderAutocomplete(wrapper);
+  }
+});
+
+// Klick außerhalb schließt Dropdown
+document.addEventListener("click", e => {
+  document.querySelectorAll(".autocomplete-list").forEach(list => {
+    if (!list.parentElement.contains(e.target)) {
+      list.style.display = "none";
+    }
+  });
+});
+
+
 </script>
 {% endblock %}

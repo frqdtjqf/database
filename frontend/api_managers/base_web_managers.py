@@ -29,6 +29,9 @@ class BaseWebManager:
             rows=self.get_rows()
         )
     
+    def get_model_ids(self) -> list[str]:
+        return self.repo_mng.get_model_ids()
+    
     def create_model(self, data: dict):
         kwargs = {}
 
@@ -55,6 +58,8 @@ class BaseWebManager:
                 mapping = {}
                 repo = self.repos[meta["repo"]]
                 for k, v in zip(keys, values):
+                    if (k is None) or (k==""):
+                        continue
                     mapping[repo.get_model_by_primary_key(k)] = int(v)
                 raw = mapping
 

@@ -21,7 +21,7 @@
       {% for row in rows %}
       <tr>
         {% for column in columns %}
-          <td>{{ row[column] if row[column] is not none else "-" }}</td>
+          <td>{{ row[column] if (row[column] is not none) and (row is not none) else "-" }}</td>
         {% endfor %}
 
         <td class="actions">

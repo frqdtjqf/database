@@ -29,10 +29,38 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">
+                {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+
     <footer class="app-footer">
         <small>&copy; 2026 Lego Database</small>
     </footer>
 
 </body>
 </html>
+
+<script>
+  // Alle Flash-Nachrichten nach einer bestimmten Zeit ausblenden
+  setTimeout(() => {
+    document.querySelectorAll(".flash").forEach(el => {
+      el.style.transition = "opacity 0.5s ease, transform 0.5s ease";
+      el.style.opacity = "0";
+      el.style.transform = "translateY(-10px)";
+
+      // Nach Ende der Transition komplett aus dem DOM entfernen
+      setTimeout(() => el.remove(), 500); // 500ms = Dauer der Transition
+    });
+  }, 4000);
+</script>
+
 

@@ -7,6 +7,39 @@ body {
   color: #333;
 }
 
+/* ---- flash ----*/
+.flash-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.flash {
+  background: #f44336;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  min-width: 250px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.flash.error {
+  background: #e53935;
+}
+
+.flash.success {
+  background: #43a047;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
 /* ---------- Header ---------- */
 
 .app-header {
@@ -211,6 +244,11 @@ body {
 
 /* ---------- Add Form  ---------- */
 
+.id-field-label {
+  color: #ff9800;
+  font-weight: bold;
+}
+
 .add-form {
   max-width: 520px;
   padding: 1.75rem;
@@ -331,4 +369,42 @@ input[type="number"]:focus {
 .submit-btn:hover {
   background-color: #3b7dc4;
   transform: translateY(-1px);
+}
+
+/* ---------- Autocomplete ---------- */
+
+.autocomplete {
+  position: relative;
+  width: auto;
+  flex: none;
+}
+
+.autocomplete input[type="text"] {
+  width: 400px;
+}
+
+.autocomplete-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 100%;
+  max-width: 200px;
+  background: #fff;
+  border: 1px solid #d1d9e6;
+  border-radius: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  display: none;
+  z-index: 50;
+}
+
+.autocomplete-item {
+  padding: 0.45rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.autocomplete-item:hover {
+  background-color: #e6f0ff;
 }

@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
 from backend.lego_db import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
 from frontend.api_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager, WebTable, BaseWebManager
 from backend.lego_db import LegoDBInterface, PRIMARY_KEY_NAME, WEAPON_PART_TABLE
 from backend.sql_api import DataBaseWrapper
 from dataclasses import fields
+import traceback
 
 db = DataBaseWrapper("database.db")
 WEB_MANAGERS = {
@@ -35,12 +36,14 @@ db_inter = LegoDBInterface(db)
 db_inter.create_all_tables()
 
 app = Flask(__name__)
+app.secret_key = "dev-secret-key"
 
 @app.context_processor
 def inject_entities():
     return dict(
         entity_routes=ENTITY_ROUTES,
-        entity_names=ENTITY_NAMES
+        entity_names=ENTITY_NAMES,
+        web_managers=WEB_MANAGERS
     )
 
 @app.route("/")
@@ -93,16 +96,17 @@ def add_form(entity):
             if f.name not in form_data:
                 if f.metadata.get("related_field", False):
                     # default to empty container
-                    form_data[f.name] = f.default_factory() if callable(f.default_factory) else None
+                    form_data[f.name] = f.default_factory()
                 else:
                     form_data[f.name] = None
 
         # Create model dynamically
-        new_model = web_manager.create_model(form_data)
-        repo_manager.add_model(new_model)
-
-        return redirect(url_for(ENTITY_ROUTES[entity]))
-
+        try:
+            new_model = web_manager.create_model(form_data)
+            repo_manager.add_model(new_model)
+            return redirect(url_for(ENTITY_ROUTES[entity]))
+        except Exception as e:
+            flash(str(e), "error")
 
     # GET: Formular rendern
     return render_template("add_form.html", model_fields=model_fields, entity=entity)
@@ -117,9 +121,17 @@ def delete(entity):
     repo_manager = web_manager.repo_mng
 
     obj = repo_manager.get_model_by_primary_key(obj_id)
+
     repo_manager.delete_model(obj)
 
     return redirect(url_for(ENTITY_ROUTES[entity]))
+
+@app.route("/api/<entity>/ids")
+def get_ids(entity):
+    mng_cls = WEB_MANAGERS.get(entity)
+    mng : BaseWebManager = mng_cls(db)
+    data = mng.get_model_ids()
+    return jsonify(data)
 
 # --- Helper ---
 def render_generic(web_mng: BaseWebManager):

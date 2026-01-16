@@ -45,7 +45,10 @@ class ActualMinifigureRepoManager(BaseRepoManager):
             if attr.name == TEMPLATE_NAME:
                 value = model.template.id
             elif attr.name == WEAPON_SLOT_NAME:
-                value = model.weapon_slot.id
+                if model.weapon_slot is None:
+                    value = None
+                else:
+                    value = model.weapon_slot.id
             else:
                 value = getattr(model, attr.name)
             elements.append(Element(attribute=attr, value=value))
