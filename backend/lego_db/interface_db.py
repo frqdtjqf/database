@@ -1,94 +1,39 @@
 from backend.sql_api import DataBaseWrapper
-from backend.lego_db.db_converter import WeaponRepoManager, WeaponSlotRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, ActualMinifigureRepoManager
-from backend.lego_db.lego_models import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
+from backend.lego_db.db_converter import WeaponRepoManager, WeaponSlotRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, ActualMinifigureRepoManager, BaseRepoManager
+from backend.lego_db.lego_models import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure, BasicModel
 from backend.lego_db.db_converter.registry.relations import RELATIONS
 from dataclasses import dataclass
-
-@dataclass
-class SuperManager:
-    weapon_mgn: WeaponRepoManager
-    weapon_slot_mgn: WeaponSlotRepoManager
-    temp_min_mgn: TemplateMinifigureRepoManager
-    lego_part_mgn: LegoPartRepoManager
-    act_min_mgn: ActualMinifigureRepoManager
 
 class LegoDBInterface:
 
     def __init__(self, db: DataBaseWrapper):
         self.db = db
 
-        self.super_mgn = SuperManager(
-            weapon_mgn=WeaponRepoManager(self.db),
-            weapon_slot_mgn=WeaponSlotRepoManager(self.db),
-            temp_min_mgn=TemplateMinifigureRepoManager(self.db),
-            lego_part_mgn=LegoPartRepoManager(self.db),
-            act_min_mgn=ActualMinifigureRepoManager(self.db)
-        )
+        self.managers : dict[str, BaseRepoManager] = {}
+        self.managers = {
+            "weapons": WeaponRepoManager(self.db),
+            "weapon_slots": WeaponSlotRepoManager(self.db),
+            "template_minifigures": TemplateMinifigureRepoManager(self.db),
+            "lego_parts": LegoPartRepoManager(self.db),
+            "actual_minifigures": ActualMinifigureRepoManager(self.db)
+        }
     
     # --- GENERAL ---
     def create_all_tables(self):
         for relation in RELATIONS.values():
             self.db.create_relations_table(relation)
-        self.super_mgn.weapon_mgn.create_tables()
-        self.super_mgn.weapon_slot_mgn.create_tables()
-        self.super_mgn.temp_min_mgn.create_tables()
-        self.super_mgn.lego_part_mgn.create_tables()
-        self.super_mgn.act_min_mgn.create_tables()
+        for manager in self.managers.values():
+            manager.create_tables()
 
     def delete_all_tables(self):
-        self.super_mgn.weapon_mgn.delete_tables()
-        self.super_mgn.weapon_slot_mgn.delete_tables()
-        self.super_mgn.temp_min_mgn.delete_tables()
-        self.super_mgn.lego_part_mgn.delete_tables()
-        self.super_mgn.act_min_mgn.delete_tables()
+        for manager in self.managers.values():
+            manager.delete_tables()
 
-    # --- Parts ---
-    def get_parts(self) -> list[LegoPart]:
-        return self.super_mgn.lego_part_mgn.get_models()
+    def get_models(self, mng_name: str) -> list[BasicModel]:
+        return self.managers[mng_name].get_models()
     
-    def add_part(self, part: LegoPart):
-        self.super_mgn.lego_part_mgn.add_model(part)
+    def add_models(self, part: BasicModel, mng_name: str):
+        self.managers[mng_name].add_model(part)
 
-    def delete_part(self, part: LegoPart):
-        self.super_mgn.lego_part_mgn.delete_model(part)
-
-    # --- Templates ---
-    def get_all_templates(self) -> list[TemplateMinifigure]:
-        return self.super_mgn.temp_min_mgn.get_models()
-
-    def add_template(self, template: TemplateMinifigure):
-        self.super_mgn.temp_min_mgn.add_model(template)
-
-    def delete_template(self, template: TemplateMinifigure):
-        self.super_mgn.temp_min_mgn.delete_model(template)
-
-    # --- Weapons ---
-    def get_all_weapons(self) -> list[Weapon]:
-        return self.super_mgn.weapon_mgn.get_models()
-
-    def add_weapon(self, weapon: Weapon):
-        self.super_mgn.weapon_mgn.add_model(weapon)
-
-    def delete_weapon(self, weapon: Weapon):
-        self.super_mgn.weapon_mgn.delete_model(weapon)
-
-    # --- Weapon Slots ---
-    def get_all_weapon_slots(self) -> list[WeaponSlot]:
-        return self.super_mgn.weapon_slot_mgn.get_models()
-
-    def add_weapon_slot(self, slot: WeaponSlot):
-        self.super_mgn.weapon_slot_mgn.add_model(slot)
-
-    def delete_weapon_slot(self, slot: WeaponSlot):
-        self.super_mgn.weapon_slot_mgn.delete_model(slot)
-
-    # --- Actual Minifigures ---
-    def get_all_actual_minifigures(self) -> list[ActualMinifigure]:
-        return self.super_mgn.act_min_mgn.get_models()
-
-    def add_actual_minifigure(self, actual: ActualMinifigure):
-        self.super_mgn.act_min_mgn.add_model(actual)
-
-    def delete_actual_minifigure(self, actual: ActualMinifigure):
-        self.super_mgn.act_min_mgn.delete_model(actual)
-        
+    def delete_model(self, part: BasicModel, mng_name: str):
+        self.managers[mng_name].delete_model(part)

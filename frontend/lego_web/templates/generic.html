@@ -7,6 +7,16 @@
     <a class="add-btn" href="{{ url_for('add_form', entity=entity) }}">+ Add</a>
   </div>
 
+  <form method="POST"
+        action="{{ url_for('upload_csv', entity=entity) }}"
+        enctype="multipart/form-data"
+        class="csv-upload-form">
+
+    <input type="file" name="csv_file" accept=".csv" required>
+    <button type="submit">Import CSV</button>
+
+  </form>
+
   <table class="modern-table">
     <thead>
       <tr>

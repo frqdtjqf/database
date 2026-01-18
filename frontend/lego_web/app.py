@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
-from backend.lego_db import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, abort
 from frontend.api_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager, WebTable, BaseWebManager
 from backend.lego_db import LegoDBInterface, PRIMARY_KEY_NAME, WEAPON_PART_TABLE
 from backend.sql_api import DataBaseWrapper
 from dataclasses import fields
 import traceback
+from backend.file_reader.get_info import import_csv
 
 def create_app():
 
@@ -138,6 +138,26 @@ def create_app():
         mng : BaseWebManager = mng_cls(db)
         data = mng.get_model_ids()
         return jsonify(data)
+    
+    @app.route("/<entity>/upload_csv", methods=["POST"])
+    def upload_csv(entity):
+        if entity not in WEB_MANAGERS:
+            abort(404)
+
+        file = request.files.get("csv_file")
+        if not file or not file.filename.endswith(".csv"):
+            flash("Please upload a csv", "error")
+            return redirect(url_for(ENTITY_ROUTES[entity]))
+
+        try:
+            rows = import_csv(file)
+            print(rows)
+            flash("CSV imported", "success")
+        except Exception as e:
+            traceback.print_exc()
+            flash(str(e), "error")
+
+        return redirect(url_for(ENTITY_ROUTES[entity]))
 
     # --- Helper ---
     def render_generic(web_mng: BaseWebManager):
