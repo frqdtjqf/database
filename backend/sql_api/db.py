@@ -57,7 +57,7 @@ class DataBaseWrapper:
 
         columns_sql = ", ".join(columns)
         placeholders_sql = ", ".join([f":{c}" for c in columns])
-        sql = f"INSERT OR IGNORE INTO {table.name} ({columns_sql}) VALUES ({placeholders_sql})"
+        sql = f"INSERT INTO {table.name} ({columns_sql}) VALUES ({placeholders_sql})"
         with self._connect() as db:
             db.execute(sql, params)
             db.commit()

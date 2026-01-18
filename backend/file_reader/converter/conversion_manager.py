@@ -18,3 +18,4 @@ class LegoPartConversionManager:
         self.repo_mng = LegoPartRepoManager(db)
 
     def model_from_dict(self, data: dict, name_conversion: dict[str, str]) -> LegoPart:
+        pass

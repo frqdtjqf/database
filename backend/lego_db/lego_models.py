@@ -62,19 +62,32 @@ class BasicModel:
     
     def __eq__(self, other):
         return isinstance(other, type(self)) and self.id == other.id
+    
+# Farbe
+@dataclass(frozen=True)
+class Color(BasicModel):
+    bricklink_color_id: str = field(metadata={"id_field": True})
+    name: str = ""
+
+    rebrickable_color_id: str = ""
+    lego_color_id: str = ""
+    rgb_value: str = ""
+
+    def id_source(self):
+        return f"{self.bricklink_color_id}"
 
 # Lego Teil
 @dataclass(frozen=True)
 class LegoPart(BasicModel):
     bricklink_part_id: str = field(metadata={"id_field": True})
-    bricklink_color_id: str = field(metadata={"id_field": True})
+    bricklink_color: Color = field(metadata={"id_field": True, "related_field": True, "repo": "colors"})
 
     lego_element_id: str = ""
     lego_design_id: str = ""
     description: str = ""
 
     def id_source(self) -> str:
-        return f"{self.bricklink_part_id}_{self.bricklink_color_id}"
+        return f"{self.bricklink_part_id}_{self.bricklink_color.id}"
 
 # Waffentypen für Minifiguren
 @dataclass(frozen=True)

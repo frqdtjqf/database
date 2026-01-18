@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, abort
-from frontend.api_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager, WebTable, BaseWebManager
+from frontend.api_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager, WebTable, BaseWebManager, ColorWebManager
 from backend.lego_db import LegoDBInterface, PRIMARY_KEY_NAME, WEAPON_PART_TABLE
 from backend.sql_api import DataBaseWrapper
 from dataclasses import fields
@@ -10,6 +10,7 @@ def create_app():
 
     db = DataBaseWrapper("database.db")
     WEB_MANAGERS = {
+        "colors": ColorWebManager,
         "lego_parts": LegoPartWebManager,
         "weapons": WeaponWebManager,
         "weapon_slots": WeaponSlotWebManager,
@@ -18,6 +19,7 @@ def create_app():
     }
 
     ENTITY_ROUTES = {
+        "colors": "render_colors",
         "lego_parts": "render_lego_parts",
         "weapons": "render_weapons",
         "weapon_slots": "render_weapon_slots",
@@ -26,11 +28,12 @@ def create_app():
     }
 
     ENTITY_NAMES = {
+        "colors": "Colors",
         "lego_parts": "Lego Parts",
         "weapons": "Weapons",
         "weapon_slots": "Weapon Slots",
         "template_minifigures": "Template Minifigures",
-        "actual_minifigures": "Actual Minifigures"
+        "actual_minifigures": "Actual Minifigures",
     }
 
 
@@ -51,6 +54,11 @@ def create_app():
     @app.route("/")
     def home():
         return render_template("home.html")
+    
+    @app.route("/colors")
+    def render_colors():
+        mng = ColorWebManager(db)
+        return render_generic(web_mng=mng)
 
     @app.route("/lego_parts")
     def render_lego_parts():

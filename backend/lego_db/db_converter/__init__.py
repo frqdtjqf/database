@@ -1,1 +1,1 @@
-from .repo_managers import ActualMinifigureRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, WeaponRepoManager, WeaponSlotRepoManager, BaseRepoManager
+from .repo_managers import ActualMinifigureRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, WeaponRepoManager, WeaponSlotRepoManager, BaseRepoManager, ColorRepoManager

@@ -1,3 +1,3 @@
-from .web_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager
+from .web_managers import LegoPartWebManager, WeaponWebManager, WeaponSlotWebManager, TemplateMinifigureWebManager, ActualMinifigureWebManager, ColorWebManager
 from .web_models import WebTable
 from .base_web_managers import BaseWebManager

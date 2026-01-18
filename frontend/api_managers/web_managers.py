@@ -1,9 +1,35 @@
-from backend.lego_db.db_converter import ActualMinifigureRepoManager, TemplateMinifigureRepoManager, WeaponRepoManager, WeaponSlotRepoManager, LegoPartRepoManager
-from backend.lego_db import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure
+from backend.lego_db.db_converter import ActualMinifigureRepoManager, TemplateMinifigureRepoManager, WeaponRepoManager, WeaponSlotRepoManager, LegoPartRepoManager, ColorRepoManager
+from backend.lego_db import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure, Color
 from frontend.api_managers.base_web_managers import BaseWebManager, DataBaseWrapper
 
+class ColorWebManager(BaseWebManager):
+    columns = ["ID", "Bricklink Color ID", "Rebrickable Color ID", "Lego Color ID", "RGB", "Name"]
+    rows = []
+    t_name = "Colors"
+
+    def __init__(self, db: DataBaseWrapper):
+        self.repo_mng = ColorRepoManager(db)
+        self.rows = self.get_rows()
+        self.entity = self.repo_mng.table.name
+
+    def get_rows(self) -> list[dict[str, str]]:
+        rows = []
+        models: list[Color] = self.repo_mng.get_models()
+        c = self.columns
+        for m in models:
+            row = {
+                c[0]: m.id,
+                c[1]: m.bricklink_color_id if m.bricklink_color_id else None,
+                c[2]: m.rebrickable_color_id if m.rebrickable_color_id else None,
+                c[3]: m.lego_color_id if m.lego_color_id else None,
+                c[4]: m.rgb_value if m.rgb_value else None,
+                c[5]: m.name if m.name else None,
+            }
+            rows.append(row)
+        return rows
+
 class LegoPartWebManager(BaseWebManager):
-    columns = ["ID", "BrickLink Part ID", "BrickLink Color ID", "Lego Element ID", "Lego Design ID", "Description"]
+    columns = ["ID", "BrickLink Part ID", "Color", "Lego Element ID", "Lego Design ID", "Description"]
     rows = []
     t_name = "Lego Parts"
 
@@ -11,6 +37,10 @@ class LegoPartWebManager(BaseWebManager):
         self.repo_mng = LegoPartRepoManager(db)
         self.rows = self.get_rows()
         self.entity = self.repo_mng.table.name
+
+        self.repos = {
+            "colors": ColorRepoManager(db)
+        }
 
     def get_rows(self) -> list[dict[str, str]]:
         rows = []
@@ -20,7 +50,7 @@ class LegoPartWebManager(BaseWebManager):
             row = {
                 c[0]: m.id,
                 c[1]: m.bricklink_part_id if m.bricklink_part_id else None,
-                c[2]: m.bricklink_color_id if m.bricklink_color_id else None,
+                c[2]: m.bricklink_color.name if m.bricklink_color.name else None,
                 c[3]: m.lego_element_id if m.lego_element_id else None,
                 c[4]: m.lego_design_id if m.lego_design_id else None,
                 c[5]: m.description if m.description else None

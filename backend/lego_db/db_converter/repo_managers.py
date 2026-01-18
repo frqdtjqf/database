@@ -1,19 +1,48 @@
-from backend.lego_db.lego_models import LegoPart, TemplateMinifigure, ActualMinifigure, Weapon, WeaponSlot
+from backend.lego_db.lego_models import LegoPart, TemplateMinifigure, ActualMinifigure, Weapon, WeaponSlot, Color
 from backend.sql_api import Record, Element
 from backend.lego_db.db_converter.registry import *
 from backend.lego_db.db_converter.generic_managers import ParentRepoManager, BaseRepoManager
 
 # ==== BASIC ====
 # basic Managers with max. 1:1 relations that dont require an extra Table
+class ColorRepoManager(BaseRepoManager):
+    table = COLOR_TABLE
+    model_cls = Color
+    joint_tables = []
+
+    def _model_from_record(self, record: Record) -> Color:
+        data = {e.attribute.name: e.value for e in record.elements}
+        data.pop(PRIMARY_KEY_NAME)
+        return Color(**data)
+
 class LegoPartRepoManager(BaseRepoManager):
     table = LEGO_PART_TABLE
     model_cls = LegoPart
     joint_tables = []
 
+    def __init__(self, db):
+        super().__init__(db)
+        self.color_manager = ColorRepoManager(db)
+
     def _model_from_record(self, record: Record) -> LegoPart:
         data = {e.attribute.name: e.value for e in record.elements}
+
+        color_id = data.pop(COLOR_NAME)
+        color = self.color_manager.get_model_by_primary_key(color_id)
+
+        data["bricklink_color"] = color
         data.pop(PRIMARY_KEY_NAME)
         return LegoPart(**data)
+    
+    def _record_from_model(self, model: LegoPart) -> Record:
+        elements = []
+        for attr in self.table.attributes:
+            if attr.name == COLOR_NAME:
+                value = model.bricklink_color.id
+            else:
+                value = getattr(model, attr.name)
+            elements.append(Element(attribute=attr, value=value))
+        return Record(elements=elements)
     
 class ActualMinifigureRepoManager(BaseRepoManager):
     table = ACTUAL_MINIFIGURE_TABLE

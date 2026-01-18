@@ -1,6 +1,6 @@
 from backend.sql_api import DataBaseWrapper
-from backend.lego_db.db_converter import WeaponRepoManager, WeaponSlotRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, ActualMinifigureRepoManager, BaseRepoManager
-from backend.lego_db.lego_models import LegoPart, Weapon, WeaponSlot, TemplateMinifigure, ActualMinifigure, BasicModel
+from backend.lego_db.db_converter import WeaponRepoManager, WeaponSlotRepoManager, TemplateMinifigureRepoManager, LegoPartRepoManager, ActualMinifigureRepoManager, BaseRepoManager, ColorRepoManager
+from backend.lego_db.lego_models import BasicModel
 from backend.lego_db.db_converter.registry.relations import RELATIONS
 from dataclasses import dataclass
 
@@ -15,7 +15,8 @@ class LegoDBInterface:
             "weapon_slots": WeaponSlotRepoManager(self.db),
             "template_minifigures": TemplateMinifigureRepoManager(self.db),
             "lego_parts": LegoPartRepoManager(self.db),
-            "actual_minifigures": ActualMinifigureRepoManager(self.db)
+            "actual_minifigures": ActualMinifigureRepoManager(self.db),
+            "colors": ColorRepoManager(self.db)
         }
     
     # --- GENERAL ---

@@ -8,11 +8,21 @@ PART_NAME = "part_id"
 TEMPLATE_NAME = "template_id"
 WEAPON_NAME = "weapon_id"
 WEAPON_SLOT_NAME = "weapon_slot_id"
+COLOR_NAME = "bricklink_color_id"
+
+COLOR_ATTRIBUTES = [
+    Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
+    Attribute(name="bricklink_color_id", type="TEXT"),
+    Attribute(name="rebrickable_color_id", type="TEXT"),
+    Attribute(name="lego_color_id", type="TEXT"),
+    Attribute(name="rgb_value", type="TEXT"),
+    Attribute(name="name", type="TEXT")
+]
 
 LEGO_PART_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
     Attribute(name="bricklink_part_id", type="TEXT"),
-    Attribute(name="bricklink_color_id", type="TEXT"),
+    Attribute(name=COLOR_NAME, type="TEXT", foreign_key=("colors", PRIMARY_KEY_NAME)),
     Attribute(name="lego_element_id", type="TEXT"),
     Attribute(name="lego_design_id", type="TEXT"),
     Attribute(name="description", type="TEXT")
@@ -20,7 +30,7 @@ LEGO_PART_ATTRIBUTES = [
 
 TEMPLATE_MINIFIGURE_ATTRIBUTES = [
     Attribute(name=PRIMARY_KEY_NAME, type="TEXT", primary_key=True),
-    Attribute(name="bricklink_fig_id", type="TEXT"),
+    Attribute(name="color", type="TEXT", foreign_key=("colors", PRIMARY_KEY_NAME)),
     Attribute(name="name", type="TEXT"),
     Attribute(name="year", type="TEXT"),
     Attribute(name="sets", type="TEXT"),
@@ -48,6 +58,12 @@ WEAPON_SLOT_ATTRIBUTES = [
 
 # define each table
 from backend.sql_api import Table
+
+COLOR_TABLE = Table(
+    name="colors",
+    attributes=COLOR_ATTRIBUTES,
+    is_joint=False
+)
 
 LEGO_PART_TABLE = Table(
     name="lego_parts",
@@ -84,5 +100,6 @@ TABLES_ALL = [
     TEMPLATE_MINIFIGURE_TABLE,
     ACTUAL_MINIFIGURE_TABLE,
     WEAPON_SLOT_TABLE,
-    WEAPON_TABLE
+    WEAPON_TABLE,
+    COLOR_TABLE
 ]
